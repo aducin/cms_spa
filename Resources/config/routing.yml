@@ -1,13 +1,3 @@
-cmsspa_getCategories:
-    path:     /categories
-    defaults: { _controller: cmsspaBundle:Products:getCategories }
-    methods:  GET
-    
-cmsspa_getManufactorers:
-    path:     /manufacturers
-    defaults: { _controller: cmsspaBundle:Products:getManufacturers }
-    methods:  GET
-    
 cmsspa_productsByIdComplete:
     path:     /products/{id}/edit
     defaults: { _controller: cmsspaBundle:Products:detailsByIdFullEdition }
@@ -30,7 +20,17 @@ cmsspa_productsById:
          id:  \d+
 
 cmsspa_productsByName:
-    path:     /products/{name}
+    path:     /products
     defaults: { _controller: cmsspaBundle:Products:detailsByName }
+    methods:  GET
+    
+cmsspa_getCategories:
+    path:     /categories
+    defaults: { _controller: cmsspaBundle:Products:getCategories }
+    methods:  GET
+    
+cmsspa_getManufactorers:
+    path:     /manufacturers
+    defaults: { _controller: cmsspaBundle:Products:getManufacturers }
     methods:  GET
     

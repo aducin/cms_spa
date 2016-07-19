@@ -79,8 +79,12 @@ class ProductsController extends Controller
         }
     }
     
-    public function detailsByNameAction($name) {
-
+    public function detailsByNameAction() {
+	  if (isset($_GET['search'])) {
+		$name = $_GET['search'];
+	  } else {
+		$name = '';
+	  }
 	  $em = $this->getDoctrine()->getManager($this->dbNew);
           $products = $em->getRepository('cmsspaBundle:Products')->findByNamePart($name);
 
@@ -89,9 +93,8 @@ class ProductsController extends Controller
 		'No product with phrase:  '.$name
 	    );
 	  } else {
-		$result = array('products' => $products, 'name' => $name) {
-		//    echo json_decode($result); exit();
-		}
+		$result = array('products' => $products, 'name' => $name);
+		//echo json_decode($result); exit();
 		return $this->render('cmsspaBundle:Products:detailsName.html.twig', array(
 		    'products' => $products,
 		    'name' => $name,
