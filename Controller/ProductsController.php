@@ -44,7 +44,6 @@ class ProductsController extends Controller
 	$emNew = $this->getDoctrine()->getManager($this->dbNew);
 	$emOld = $this->getDoctrine()->getManager($this->dbOld);
 	$product = $emNew->getRepository('cmsspaBundle:ProductsLang')->find($id);
-        $productManufacturer = $emNew->getRepository('cmsspaBundle:Products', $this->dbNew)->find($id);
 
         if (!$product) {
 	      throw $this->createNotFoundException(
@@ -60,7 +59,8 @@ class ProductsController extends Controller
 	    $productDetails['metaDescription'] = $product->getMetaDescription();
 	    $productDetails['metaTitle'] = $product->getMetaTitle();
 	    $productDetails['linkRewrite'] = $product->getLinkRewrite();
-	    $productDetails['manufacturer'] = $productManufacturer->getIdManufacturer();
+	    $productDetails['manufacturer'] = $emNew->getRepository('cmsspaBundle:Products', $this->dbNew)->find($id)
+	    ->getIdManufacturer();
 	    $productDetails['priceNew'] = $emNew->getRepository('cmsspaBundle:ProductsShop')->find($id)->getPrice();
 	    $productDetails['priceOld'] = $emOld->getRepository('cmsspaBundle:ProductsShop')->find($id)->getPrice();
 	    $productDetails['quantityNew'] = $this->getSingleQuantity($this->dbNew, $id);
