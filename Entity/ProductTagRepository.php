@@ -17,9 +17,7 @@ class ProductTagRepository extends \Doctrine\ORM\EntityRepository
 	    $counter = 0;
 	    foreach ($tags as $single) {
 		$list[$counter]['id'] = $single['id_tag'];
-		$name =  $this->getEntityManager()
-		    ->createQuery('SELECT t.name FROM cmsspaBundle:Tag t WHERE t.id_tag = :id')
-		    ->setParameter('id', $single['id_tag'])->getResult();
+		$name = $this->findTagName($single['id_tag']);
 		$list[$counter]['name'] = $name[0]['name'];
 		$tagString .= $name[0]['name'].' ,';
 		$counter++;
@@ -27,6 +25,14 @@ class ProductTagRepository extends \Doctrine\ORM\EntityRepository
 	    $string = trim($tagString, " ,");
 	    $list['tagString'] = $string;
 	    return $list;
+     }
+     
+     public function findTagName($id)
+     {
+	    return $this->getEntityManager()
+		    ->createQuery('SELECT t.name FROM cmsspaBundle:Tag t WHERE t.id_tag = :id')
+		    ->setParameter('id', $id)->getResult();
+	    
      }
 
 }
