@@ -27,12 +27,11 @@ class ProductTagRepository extends \Doctrine\ORM\EntityRepository
 	    return $list;
      }
      
-     public function findTagName($id)
+     private function findTagName($id)
      {
 	    return $this->getEntityManager()
 		    ->createQuery('SELECT t.name FROM cmsspaBundle:Tag t WHERE t.id_tag = :id')
-		    ->setParameter('id', $id)->getResult();
-	    
+		    ->setParameter('id', $id)->getResult();  
      }
 
 }
