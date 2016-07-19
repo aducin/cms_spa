@@ -1,0 +1,27 @@
+<?php
+
+namespace cms\spaBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+
+/**
+  * @ORM\Entity
+  * @ORM\Table(name="ps_product_tag")
+  */
+class ProductTag
+{
+      
+      /**
+      * @ORM\Id
+      * @ORM\Column(type="integer")
+      */
+      protected $id_product;
+
+      /**
+      * @ORM\Id
+      * @ORM\Column(type="integer")
+      */
+      protected $id_tag;
+
+}

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+ <html>
+     <head>
+         <title>Product details!</title>
+         <meta charset="UTF-8">
+     </head>
+     <body>
+	  <h1>Short edition of product number: {{ product.id }}</h1>
+	  <p>Name: {{product.name}}</p>
+	  <form method="post" action="http://localhost/cms_spa/web/app_dev.php/products/{{product.id}}">
+	      <p>Quantity (new): 
+		    <input type="text" name="quantity" value="{{product.quantity.new}}" />
+		    <input type="hidden" name="db" value="linuxPl" />
+		    <input type="submit" value="Save" />
+	      </p>
+	  </form>
+	  <form method="post" action="http://localhost/cms_spa/web/app_dev.php/products/{{product.id}}">
+	      <p>Quantity (old): 
+		    <input type="text" name="quantity" value="{{product.quantity.old}}" />
+		    <input type="hidden" name="db" value="ogicom" />
+		    <input type="submit" value="Save" />
+	      </p>
+	  </form>
+	  <form method="post" action="http://localhost/cms_spa/web/app_dev.php/products/{{product.id}}">
+	      <p>New quantity (both): 
+		    <input type="text" name="quantity" value="" />
+		    <input type="hidden" name="db" value="both" />
+		    <input type="submit" value="Save" />
+	      </p>
+	  </form>
+	  <form method="post" action="http://localhost/cms_spa/web/app_dev.php/products/{{product.id}}">
+	      <p>Price (new): 
+		    <input type="text" name="price" value="{{product.price.new}}" />
+		    <input type="hidden" name="db" value="linuxPl" />
+		    <input type="submit" value="Save" />
+	      </p>
+	  </form>
+	  <form method="post" action="http://localhost/cms_spa/web/app_dev.php/products/{{product.id}}">
+	      <p>Price (old): 
+		    <input type="text" name="price" value="{{product.price.old}}" />
+		    <input type="hidden" name="db" value="ogicom" />
+		    <input type="submit" value="Save" />
+	      </p>
+	  </form>
+	  <form method="post" action="http://localhost/cms_spa/web/app_dev.php/products/{{product.id}}">
+	      <p>New price (both): 
+		    <input type="text" name="price" value="" />
+		    <input type="hidden" name="db" value="both" />
+		    <input type="submit" value="Save" />
+	      </p>
+	  </form>
+     </body>
+</html>

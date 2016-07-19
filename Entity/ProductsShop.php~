@@ -1,0 +1,28 @@
+<?php
+
+namespace cms\spaBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+
+/**
+  * @ORM\Entity(repositoryClass="cms\spaBundle\Entity\ProductsRepository")
+  * @ORM\Table(name="ps_product_shop")
+  */
+
+class ProductsShop
+{
+
+    /**
+      * @ORM\Id
+      * @ORM\Column(type="integer")
+      * @ORM\GeneratedValue(strategy="AUTO")
+      */
+    protected $id_product;
+
+    /**
+      * @ORM\Column(type="decimal", scale=2)
+      */
+    protected $price;
+
+}

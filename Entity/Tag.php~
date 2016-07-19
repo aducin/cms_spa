@@ -1,0 +1,27 @@
+<?php
+
+namespace cms\spaBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+
+/**
+  * @ORM\Entity
+  * @ORM\Table(name="ps_tag")
+  */
+class Tag
+{
+      
+      /**
+      * @ORM\Id
+      * @ORM\Column(type="integer")
+      * @ORM\GeneratedValue(strategy="AUTO")
+      */
+      protected $id_tag;
+
+      /**
+      * @ORM\Column(type="string", length=100)
+      */
+      protected $name;
+
+}

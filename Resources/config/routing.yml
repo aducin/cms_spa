@@ -1,0 +1,36 @@
+cmsspa_getCategories:
+    path:     /categories
+    defaults: { _controller: cmsspaBundle:Products:getCategories }
+    methods:  GET
+    
+cmsspa_getManufactorers:
+    path:     /manufacturers
+    defaults: { _controller: cmsspaBundle:Products:getManufacturers }
+    methods:  GET
+    
+cmsspa_productsByIdComplete:
+    path:     /products/{id}/edit
+    defaults: { _controller: cmsspaBundle:Products:detailsByIdFullEdition }
+    methods:  GET
+    requirements:
+         id:  \d+
+  
+cmsspa_singleUpdate:
+    path:     /products/{id}
+    defaults: { _controller: cmsspaBundle:Products:singleUpdate }
+    methods:  POST
+    requirements:
+         id:  \d+
+         
+cmsspa_productsById:
+    path:     /products/{id}
+    defaults: { _controller: cmsspaBundle:Products:detailsById }
+    methods:  GET
+    requirements:
+         id:  \d+
+
+cmsspa_productsByName:
+    path:     /products/{name}
+    defaults: { _controller: cmsspaBundle:Products:detailsByName }
+    methods:  GET
+    

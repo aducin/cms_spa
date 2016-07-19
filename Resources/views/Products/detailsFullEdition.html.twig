@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+ <html>
+     <head>
+         <title>Product details!</title>
+         <meta charset="UTF-8">
+     </head>
+     <body>
+	  <h1>Details of product id: {{product.id}}</h1>
+	  <p>Name: {{product.name}}!</p>
+	  <p>Quantity (new): {{product.quantityNew}}</p>
+	  <p>Quantity (old): {{product.quantityOld}}</p>
+	  <p>Price (new): {{product.priceNew}}</p>
+	  <p>Price (old): {{product.priceOld}}</p>
+	  <p>Manufacturer:
+	      <select>
+	      <option value="0">Choose one</option>
+	      {% for manufacturer in product.manufacturers %}
+		    <option value="{{manufacturer.id}}" {% if manufacturer.id == product.manufacturer %} selected="selected" {% endif %} >{{manufacturer.name}}</option>
+	      {% endfor %}
+	      </select>
+	  </p>
+	  <p>Short desc: {{product.descriptionShort}}</p>
+	  <p>Description: {{product.description}}</p>
+	  <p>Link: {{product.linkRewrite}}</p>
+	  <table>
+	  <th>Active</th>
+	  <th>Category</th>
+	  {% for category in product.categories %}
+	  <tr>
+	      <td>
+		  <input type="checkbox" name="category.id" 
+		  {% if category.id in product.productCategories %} checked="checked" {% endif %}
+		  />
+	      <td>{{ category.meta_title }}</td>
+	  </tr>
+	  {% endfor %}
+	  </table>
+	  <p>Tags: <input type="text" value="{{ product.tagString }}"/></p>
+	  <p>Tags 
+		  {% for tag in product.productTags %}
+		  	<input type="text" id="{{ tag.id }}" value="{{ tag.name }}"/>
+		  {% endfor %}
+	  </p>
+     </body>
+</html>
