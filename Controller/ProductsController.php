@@ -89,6 +89,9 @@ class ProductsController extends Controller
 		'No product with phrase:  '.$name
 	    );
 	  } else {
+		$result = array('products' => $products, 'name' => $name) {
+		//    echo json_decode($result); exit();
+		}
 		return $this->render('cmsspaBundle:Products:detailsName.html.twig', array(
 		    'products' => $products,
 		    'name' => $name,
