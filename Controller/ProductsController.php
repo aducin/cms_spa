@@ -23,16 +23,17 @@ class ProductsController extends Controller
 		'There is no product with ID:  '.$id
 	    );
 	  } else {
-		$product[0]['id'] = $id;
-		$product[0]['price']['new'] = $emNew->getRepository('cmsspaBundle:ProductsShop')
+		$product = $product[0];
+		$product['id'] = $id;
+		$product['price']['new'] = $emNew->getRepository('cmsspaBundle:ProductsShop')
 		      ->find($id)->getPrice();
-		$product[0]['price']['old'] = $emOld->getRepository('cmsspaBundle:ProductsShop')
+		$product['price']['old'] = $emOld->getRepository('cmsspaBundle:ProductsShop')
 		      ->find($id)->getPrice();
-		$product[0]['quantity']['new'] = $this->getSingleQuantity($this, $this->dbNew, $id);
-		$product[0]['quantity']['old'] = $this->getSingleQuantity($this, $this->dbOld, $id);
-		//echo json_encode($product[0]); exit();
+		$product['quantity']['new'] = $this->getSingleQuantity($this, $this->dbNew, $id);
+		$product['quantity']['old'] = $this->getSingleQuantity($this, $this->dbOld, $id);
+		//echo json_encode($product); exit();
 		return $this->render('cmsspaBundle:Products:detailsId.html.twig', array(
-		    'product' => $product[0]
+		    'product' => $product
 		));
           }
     }
