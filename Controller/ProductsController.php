@@ -29,8 +29,8 @@ class ProductsController extends Controller
 		      ->find($id)->getPrice();
 		$product['price']['old'] = $emOld->getRepository('cmsspaBundle:ProductsShop')
 		      ->find($id)->getPrice();
-		$product['quantity']['new'] = $this->getSingleQuantity($this, $this->dbNew, $id);
-		$product['quantity']['old'] = $this->getSingleQuantity($this, $this->dbOld, $id);
+		$product['quantity']['new'] = $this->getSingleQuantity($this->dbNew, $id);
+		$product['quantity']['old'] = $this->getSingleQuantity($this->dbOld, $id);
 		//echo json_encode($product); exit();
 		return $this->render('cmsspaBundle:Products:detailsId.html.twig', array(
 		    'product' => $product
@@ -63,8 +63,8 @@ class ProductsController extends Controller
 	    $productDetails['manufacturer'] = $productManufacturer->getIdManufacturer();
 	    $productDetails['priceNew'] = $emNew->getRepository('cmsspaBundle:ProductsShop')->find($id)->getPrice();
 	    $productDetails['priceOld'] = $emOld->getRepository('cmsspaBundle:ProductsShop')->find($id)->getPrice();
-	    $productDetails['quantityNew'] = $this->getSingleQuantity($this, $this->dbNew, $id);
-            $productDetails['quantityOld'] = $this->getSingleQuantity($this, $this->dbOld, $id);
+	    $productDetails['quantityNew'] = $this->getSingleQuantity($this->dbNew, $id);
+            $productDetails['quantityOld'] = $this->getSingleQuantity($this->dbOld, $id);
 	    $productDetails['productCategories'] = $emNew->getRepository('cmsspaBundle:CategoryProduct')
 	    ->findProductCategories($product->getIdProduct());
 	    $productDetails['productTags'] = $emNew->getRepository('cmsspaBundle:ProductTag')
@@ -146,8 +146,8 @@ class ProductsController extends Controller
 	  }
     }
     
-    private function getSingleQuantity($object, $db, $id) {
-	  $quantity = $object->getDoctrine()
+    private function getSingleQuantity($db, $id) {
+	  $quantity = $this->getDoctrine()
 		    ->getRepository('cmsspaBundle:StockAvailable', $db)
 		    ->find($id);
 	  return $quantity->getQuantity();
