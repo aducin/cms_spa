@@ -135,12 +135,12 @@ class ProductsController extends Controller
 	  $this->product['discount']['new'] = $this->handler['emNew']->getRepository('cmsspaBundle:SpecificPrice')
 		  ->findByIdProduct($this->product['id']); 
 	  if ($this->product['discount']['new'] !== false) {
-		  $this->product['priceReal']['new'] = $this->setRealPrice('new');
+		  $this->setRealPrice('new');
 	  } 
 	  $this->product['discount']['old'] = $this->handler['emOld']->getRepository('cmsspaBundle:SpecificPrice')
 		  ->findByIdProduct($this->product['id']); 
 	  if ($this->product['discount']['old'] !== false) {
-		  $this->product['priceReal']['old'] = $this->setRealPrice('old');
+		  $this->setRealPrice('old');
 	  }
     }
     
@@ -180,14 +180,12 @@ class ProductsController extends Controller
     
     private function setRealPrice($origin) {
 
-	  $product = $this->product;
-	  if ($product['discount'][$origin]['reduction_type'] == 'percentage') {
-		  $discount = $product['price'][$origin] * $product['discount'][$origin]['reduction'];
-		  $priceReal = $product['price'][$origin] - $discount;
-	  } elseif ($product['discount'][$origin]['reduction_type'] == 'amount') {
-		  $priceReal = $product['price'][$origin] - $product['discount'][$origin]['reduction'];
+	  if ($this->product['discount'][$origin]['reduction_type'] == 'percentage') {
+		  $discount = $this->product['price'][$origin] * $this->product['discount'][$origin]['reduction'];
+		  $this->product['priceReal'][$origin] = $this->product['price'][$origin] - $discount;
+	  } elseif ($this->product['discount'][$origin]['reduction_type'] == 'amount') {
+		  $this->product['priceReal'][$origin] = $this->product['price'][$origin] - $this->product['discount'][$origin]['reduction'];
 	  }
-	  return $priceReal;
     }
     
     public function singleUpdateAction($id) {
