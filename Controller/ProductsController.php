@@ -68,14 +68,15 @@ class ProductsController extends Controller
 	    ->findProductCategories($product->getIdProduct());
 	    $productDetails['productTags'] = $emNew->getRepository('cmsspaBundle:ProductTag')
 	    ->findTagList($product->getIdProduct());
-	    $productDetails['tagString'] = $productDetails['productTags']['tagString'];
+	    //$productDetails['tagString'] = $productDetails['productTags']['tagString'];
 	    unset($productDetails['productTags']['tagString']);
 	    $productDetails['categories'] = $this->getCategoriesAction(false);
 	    $productDetails['manufacturers'] = $this->getManufacturersAction(false);
-	    //echo json_encode($productDetails); exit();
-	    return $this->render('cmsspaBundle:Products:detailsFullEdition.html.twig', array(
-		'product' => $productDetails
-	    ));
+	    header('Content-Type: application/json');
+	    echo json_encode($productDetails); exit();
+	    //return $this->render('cmsspaBundle:Products:detailsFullEdition.html.twig', array(
+		//'product' => $productDetails
+	    //));
         }
     }
     
@@ -94,6 +95,7 @@ class ProductsController extends Controller
 	    );
 	  } else {
 		$result = array('products' => $products, 'name' => $name);
+		//header('Content-Type: application/json');
 		//echo json_decode($result); exit();
 		return $this->render('cmsspaBundle:Products:detailsName.html.twig', array(
 		    'products' => $products,
@@ -180,10 +182,12 @@ class ProductsController extends Controller
 		      $result = array('success' => true);
 		} catch (\Exception $e) {
 		      $result = array('success' => false);
+		      header('Content-Type: application/json');
 		      echo json_encode($result); 
 		      exit();
 		}
 	  }
+	  header('Content-Type: application/json');
 	  echo json_encode($result); exit();
     }
 }
