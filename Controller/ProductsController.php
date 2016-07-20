@@ -38,7 +38,7 @@ class ProductsController extends Controller
 	  } else {
 		$this->getPrices();
 		$this->getQuantities();
-		$response = $this->printJson();
+		$response = $this->printJson($this->product);
 		//return $response;
 		return $this->render('cmsspaBundle:Products:detailsId.html.twig', array(
 		    'product' => $this->product
@@ -86,7 +86,7 @@ class ProductsController extends Controller
 	    unset($this->product['productTags']['tagString']);
 	    $this->product['categories'] = $this->getCategoriesAction(false);
 	    $this->product['manufacturers'] = $this->getManufacturersAction(false);
-	    $response = $this->printJson();
+	    $response = $this->printJson($this->product);
 	    return $response;
 	    //return $this->render('cmsspaBundle:Products:detailsFullEdition.html.twig', array(
             //      'product' => $this->product
@@ -112,7 +112,7 @@ class ProductsController extends Controller
 	    );
 	  } else {
 		$this->product = array('products' => $products, 'name' => $name);
-		$response = $this->printJson();
+		$response = $this->printJson($this->product);
 		return $response;
 		//return $this->render('cmsspaBundle:Products:detailsName.html.twig', array(
 		//    'products' => $products,
@@ -194,9 +194,9 @@ class ProductsController extends Controller
 	  }
     }
     
-    private function printJson() {
+    private function printJson($data) {
           $response = new Response();
-	  $response->setContent(json_encode($this->product));
+	  $response->setContent(json_encode($data));
 	  $response->headers->set('Content-Type', 'application/json');
 	  return $response;
     }
@@ -243,16 +243,11 @@ class ProductsController extends Controller
 		      $single->flush();
 		      $result = array('success' => true);
 		} catch (\Exception $e) {
-		      $result = array('success' => false);
-		      $response = new Response();
-		      $response->setContent(json_encode($result));
-		      $response->headers->set('Content-Type', 'application/json');
+		      $response = $this->printJson($result);
 		      return $response;
 		}
 	  }
-	  $response = new Response();
-	  $response->setContent(json_encode($result));
-	  $response->headers->set('Content-Type', 'application/json');
+	  $response = $this->printJson($result);
 	  return $response;
     }
 }
