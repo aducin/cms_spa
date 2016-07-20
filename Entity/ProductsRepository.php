@@ -11,7 +11,7 @@ class ProductsRepository extends \Doctrine\ORM\EntityRepository
      {
          $result = $this->getEntityManager()
              ->createQuery('SELECT p.name FROM cmsspaBundle:ProductsLang p WHERE p.id_product = :id_product ORDER BY p.id_product')->setParameter('id_product', $id)->getResult();
-         return $result[0];
+         return $result[0]['name'];
      }
      
      public function findByNamePart($phrase) 

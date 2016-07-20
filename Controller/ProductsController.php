@@ -39,10 +39,10 @@ class ProductsController extends Controller
 		$this->getPrices();
 		$this->getQuantities();
 		$response = $this->printJson();
-		return $response;
-		//return $this->render('cmsspaBundle:Products:detailsId.html.twig', array(
-		//    'product' => $this->product
-		//));
+		//return $response;
+		return $this->render('cmsspaBundle:Products:detailsId.html.twig', array(
+		    'product' => $this->product
+		));
           }
     }
     
@@ -213,15 +213,14 @@ class ProductsController extends Controller
     public function singleUpdateAction($id) {
 	  $em = array();
 	  if ($_POST['db'] !== 'both') {
-		$em[0] = $this->getDoctrine()
-		      ->getManager($_POST['db']);
+		$this->handler = array(
+		      $this->getDoctrine()
+		      ->getManager($_POST['db'])
+		);
 	  } else {
-		$em[0] = $this->getDoctrine()
-		      ->getManager($this->dbNew);
-		$em[1] = $this->getDoctrine()
-		      ->getManager($this->dbOld);
+		$this->getDbHandlers();
 	  }
-	  foreach ($em as $single) {
+	  foreach ($this->handler as $single) {
 		if (isset($_POST['price'])) {
 		      $product = $single
 			    ->getRepository('cmsspaBundle:Products')
@@ -246,9 +245,15 @@ class ProductsController extends Controller
 		      $result = array('success' => true);
 		} catch (\Exception $e) {
 		      $result = array('success' => false);
-		      $this->printJson($result); 
+		      $response = new Response();
+		      $response->setContent(json_encode($result));
+		      $response->headers->set('Content-Type', 'application/json');
+		      return $response;
 		}
 	  }
-	  $this->printJson($result); 
+	  $response = new Response();
+	  $response->setContent(json_encode($result));
+	  $response->headers->set('Content-Type', 'application/json');
+	  return $response;
     }
 }
