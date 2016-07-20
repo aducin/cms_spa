@@ -118,7 +118,6 @@ class ProductsController extends Controller
 	  }
 	  if ($json === true) {
 		$this->printJson($categoryList);
-		exit();
 	  } else {
 		return $categoryList;
 	  }
@@ -139,7 +138,6 @@ class ProductsController extends Controller
 	  }
 	  if ($json === true) {
 		$this->printJson($manufacturerList); 
-		exit();
 	  } else {
 		return $manufacturerList;
 	  }
