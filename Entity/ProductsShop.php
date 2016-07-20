@@ -24,6 +24,16 @@ class ProductsShop
       * @ORM\Column(type="decimal", scale=2)
       */
     protected $price;
+    
+    /**
+      * @ORM\Column(type="integer")
+      */
+    protected $active;
+    
+    /**
+      * @ORM\Column(type="string", length=100)
+      */
+    protected $condition;
 
 
     /**
@@ -58,5 +68,53 @@ class ProductsShop
     public function getPrice()
     {
         return $this->price;
+    }
+
+    /**
+     * Set active
+     *
+     * @param integer $active
+     *
+     * @return ProductsShop
+     */
+    public function setActive($active)
+    {
+        $this->active = $active;
+
+        return $this;
+    }
+
+    /**
+     * Get active
+     *
+     * @return integer
+     */
+    public function getActive()
+    {
+        return $this->active;
+    }
+
+    /**
+     * Set condition
+     *
+     * @param string $condition
+     *
+     * @return ProductsShop
+     */
+    public function setCondition($condition)
+    {
+        $this->condition = $condition;
+
+        return $this;
+    }
+
+    /**
+     * Get condition
+     *
+     * @return string
+     */
+    public function getCondition()
+    {
+        return $this->condition;
     }
 }
