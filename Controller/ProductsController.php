@@ -59,11 +59,11 @@ class ProductsController extends Controller
 	    $this->product['metaDescription'] = $product->getMetaDescription();
 	    $this->product['metaTitle'] = $product->getMetaTitle();
 	    $this->product['linkRewrite'] = $product->getLinkRewrite();
-	    $this->product['manufacturer'] = $this->handler['emNew']->getRepository('cmsspaBundle:Products', $this->dbNew)
+	    $this->product['manufacturer'] = $this->handler['emNew']->getRepository('cmsspaBundle:Products')
 		  ->find($id)->getIdManufacturer();
-	    $additionalDetails = $this->handler['emNew']->getRepository('cmsspaBundle:ProductsShop')->find($id);
 	    $this->getPrices();
 	    $this->getQuantities();
+	    $additionalDetails = $this->handler['emNew']->getRepository('cmsspaBundle:ProductsShop')->find($id);
             $this->product['condition'] = $additionalDetails->getCondition();
 	    $this->product['active'] = $additionalDetails->getActive();
 	    $this->product['productCategories'] = $this->handler['emNew']->getRepository('cmsspaBundle:CategoryProduct')
