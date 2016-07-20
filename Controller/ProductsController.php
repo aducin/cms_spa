@@ -23,7 +23,6 @@ class ProductsController extends Controller
 		'There is no product with ID:  '.$id
 	    );
 	  } else {
-		$product = $product[0];
 		$product['id'] = $id;
 		$product['price']['new'] = $emNew->getRepository('cmsspaBundle:ProductsShop')
 		      ->find($id)->getPrice();
@@ -181,6 +180,8 @@ class ProductsController extends Controller
 		      $result = array('success' => true);
 		} catch (\Exception $e) {
 		      $result = array('success' => false);
+		      echo json_encode($result); 
+		      exit();
 		}
 	  }
 	  echo json_encode($result); exit();
