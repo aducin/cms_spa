@@ -3,6 +3,7 @@
 namespace cms\spaBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Response;
 use Doctrine\ORM\Mapping as ORM;
 
 
@@ -37,7 +38,8 @@ class ProductsController extends Controller
 	  } else {
 		$this->getPrices();
 		$this->getQuantities();
-		$this->printJson($this->product);
+		$response = $this->printJson();
+		return $response;
 		//return $this->render('cmsspaBundle:Products:detailsId.html.twig', array(
 		//    'product' => $this->product
 		//));
@@ -84,7 +86,8 @@ class ProductsController extends Controller
 	    unset($this->product['productTags']['tagString']);
 	    $this->product['categories'] = $this->getCategoriesAction(false);
 	    $this->product['manufacturers'] = $this->getManufacturersAction(false);
-	    $this->printJson($this->product);
+	    $response = $this->printJson();
+	    return $response;
 	    //return $this->render('cmsspaBundle:Products:detailsFullEdition.html.twig', array(
             //      'product' => $this->product
 	    //));
@@ -108,8 +111,9 @@ class ProductsController extends Controller
 		'No product with phrase:  '.$name
 	    );
 	  } else {
-		$result = array('products' => $products, 'name' => $name);
-		$this->printJson($result);
+		$this->product = array('products' => $products, 'name' => $name);
+		$response = $this->printJson();
+		return $response;
 		//return $this->render('cmsspaBundle:Products:detailsName.html.twig', array(
 		//    'products' => $products,
 		//    'name' => $name,
@@ -190,10 +194,11 @@ class ProductsController extends Controller
 	  }
     }
     
-    private function printJson($data) {
-	  header('Content-Type: application/json');
-	  echo json_encode($data); 
-	  exit();
+    private function printJson() {
+          $response = new Response();
+	  $response->setContent(json_encode($this->product));
+	  $response->headers->set('Content-Type', 'application/json');
+	  return $response;
     }
     
     private function setRealPrice($origin) {
