@@ -30,6 +30,7 @@ class ProductsController extends Controller
 		      ->find($id)->getPrice();
 		$product['quantity']['new'] = $this->getSingleQuantity($this->dbNew, $id);
 		$product['quantity']['old'] = $this->getSingleQuantity($this->dbOld, $id);
+		//header('Content-Type: application/json');
 		//echo json_encode($product); exit();
 		return $this->render('cmsspaBundle:Products:detailsId.html.twig', array(
 		    'product' => $product
@@ -140,6 +141,8 @@ class ProductsController extends Controller
 		}
 	  }
 	  if ($json === true) {
+		Controller/ProductsController.php
+
 		echo json_encode($manufacturerList); 
 		exit();
 	  } else {
