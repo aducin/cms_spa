@@ -11,21 +11,24 @@ class ProductsController extends Controller
     private $dbNew = 'linuxPl';
     private $dbOld = 'ogicom';
     private $product = array();
-    
-    private function dbHandler(){
-    
+    private $handler = array();
+
+    private function getDbHandlers(){
 	  $this->handler = array(
-		'emNew' => $this->getDoctrine()->getManager($this->dbNew), 
-		'emOld' => $this->getDoctrine()->getManager($this->dbOld)
+		'emNew' => $this->getDoctrine()
+		      ->getManager($this->dbNew), 
+		'emOld' => $this->getDoctrine()
+		      ->getManager($this->dbOld)
 	  );
     }
     
     public function detailsByIdAction($id)
     {
-    
-	  $this->dbHandler();
+	  $this->getDbHandlers();
 	  $this->product['id'] = $id;
-          $this->product['name'] = $this->handler['emNew']->getRepository('cmsspaBundle:Products')->findNameById($id);
+          $this->product['name'] = $this->handler['emNew']
+		->getRepository('cmsspaBundle:Products')
+		->findNameById($id);
           
           if (!$this->product['name']) {
 	    throw $this->createNotFoundException(
@@ -43,9 +46,10 @@ class ProductsController extends Controller
     
         public function detailsByIdFullEditionAction($id)
     {
-    
-	$this->dbHandler();
-	$product = $this->handler['emNew']->getRepository('cmsspaBundle:ProductsLang')->find($id);
+	$this->getDbHandlers();
+	$product = $this->handler['emNew']
+	      ->getRepository('cmsspaBundle:ProductsLang')
+	      ->find($id);
 
         if (!$product) {
 	      throw $this->createNotFoundException(
@@ -59,16 +63,22 @@ class ProductsController extends Controller
 	    $this->product['metaDescription'] = $product->getMetaDescription();
 	    $this->product['metaTitle'] = $product->getMetaTitle();
 	    $this->product['linkRewrite'] = $product->getLinkRewrite();
-	    $this->product['manufacturer'] = $this->handler['emNew']->getRepository('cmsspaBundle:Products')
-		  ->find($id)->getIdManufacturer();
+	    $this->product['manufacturer'] = $this->handler['emNew']
+		  ->getRepository('cmsspaBundle:Products')
+		  ->find($id)
+		  ->getIdManufacturer();
 	    $this->getPrices();
 	    $this->getQuantities();
-	    $additionalDetails = $this->handler['emNew']->getRepository('cmsspaBundle:ProductsShop')->find($id);
+	    $additionalDetails = $this->handler['emNew']
+		  ->getRepository('cmsspaBundle:ProductsShop')
+		  ->find($id);
             $this->product['condition'] = $additionalDetails->getCondition();
 	    $this->product['active'] = $additionalDetails->getActive();
-	    $this->product['productCategories'] = $this->handler['emNew']->getRepository('cmsspaBundle:CategoryProduct')
+	    $this->product['productCategories'] = $this->handler['emNew']
+		  ->getRepository('cmsspaBundle:CategoryProduct')
 		  ->findProductCategories($product->getIdProduct());
-	    $this->product['productTags'] = $this->handler['emNew']->getRepository('cmsspaBundle:ProductTag')
+	    $this->product['productTags'] = $this->handler['emNew']
+		  ->getRepository('cmsspaBundle:ProductTag')
 		  ->findTagList($product->getIdProduct());
 	    //$this->product['tagString'] = $this->product['productTags']['tagString'];
 	    unset($this->product['productTags']['tagString']);
@@ -82,15 +92,16 @@ class ProductsController extends Controller
     }
     
     public function detailsByNameAction() {
-    
 	  if (isset($_GET['search'])) {
 		$name = $_GET['search'];
 	  } else {
 		$name = '';
 	  }
 	  
-	  $this->dbHandler();
-          $products = $this->handler['emNew']->getRepository('cmsspaBundle:Products')->findByNamePart($name);
+	  $this->getDbHandlers();
+          $products = $this->handler['emNew']
+		->getRepository('cmsspaBundle:Products')
+		->findByNamePart($name);
 
           if (!$products) {
 	    throw $this->createNotFoundException(
@@ -107,8 +118,9 @@ class ProductsController extends Controller
     }
     
     public function getCategoriesAction($json = true) {
-    
-	  $categories = $this->getDoctrine()->getRepository('cmsspaBundle:CategoryLang')->findAll();
+	  $categories = $this->getDoctrine()
+		->getRepository('cmsspaBundle:CategoryLang')
+		->findAll();
 	  $categoryList = array();
 	  $counter = 0;
 	  $emptyCats = array(1, 10, 14, 15, 19, 20, 22, 23, 24, 25, 26, 27, 32, 33);
@@ -127,34 +139,41 @@ class ProductsController extends Controller
     }
     
     private function getPrices() {
-    
-	  $this->product['price']['new'] = $this->handler['emNew']->getRepository('cmsspaBundle:ProductsShop')
-		  ->find($this->product['id'])->getPrice();
-	  $this->product['price']['old'] = $this->handler['emOld']->getRepository('cmsspaBundle:ProductsShop')
-		  ->find($this->product['id'])->getPrice();
-	  $this->product['discount']['new'] = $this->handler['emNew']->getRepository('cmsspaBundle:SpecificPrice')
-		  ->findByIdProduct($this->product['id']); 
+	  $this->product['price']['new'] = $this->handler['emNew']
+		->getRepository('cmsspaBundle:ProductsShop')
+		->find($this->product['id'])->getPrice();
+	  $this->product['price']['old'] = $this->handler['emOld']
+	        ->getRepository('cmsspaBundle:ProductsShop')
+		->find($this->product['id'])->getPrice();
+	  $this->product['discount']['new'] = $this->handler['emNew']
+	        ->getRepository('cmsspaBundle:SpecificPrice')
+		->findByIdProduct($this->product['id']); 
 	  if ($this->product['discount']['new'] !== false) {
 		  $this->setRealPrice('new');
 	  } 
-	  $this->product['discount']['old'] = $this->handler['emOld']->getRepository('cmsspaBundle:SpecificPrice')
-		  ->findByIdProduct($this->product['id']); 
+	  $this->product['discount']['old'] = $this->handler['emOld']
+	        ->getRepository('cmsspaBundle:SpecificPrice')
+		->findByIdProduct($this->product['id']); 
 	  if ($this->product['discount']['old'] !== false) {
 		  $this->setRealPrice('old');
 	  }
     }
     
     private function getQuantities() {
-    
-	  $this->product['quantity']['new'] = $this->handler['emNew']->getRepository('cmsspaBundle:StockAvailable')
-		->find($this->product['id'])->getQuantity();
-	  $this->product['quantity']['old'] = $this->handler['emOld']->getRepository('cmsspaBundle:StockAvailable')
-		->find($this->product['id'])->getQuantity();
+	  $this->product['quantity']['new'] = $this->handler['emNew']
+		->getRepository('cmsspaBundle:StockAvailable')
+		->find($this->product['id'])
+		->getQuantity();
+	  $this->product['quantity']['old'] = $this->handler['emOld']
+		->getRepository('cmsspaBundle:StockAvailable')
+		->find($this->product['id'])
+		->getQuantity();
     }
     
     public function getManufacturersAction($json = true) {
-    
-	  $manufacturers = $this->getDoctrine()->getRepository('cmsspaBundle:Manufacturer')->findAll();
+	  $manufacturers = $this->getDoctrine()
+		->getRepository('cmsspaBundle:Manufacturer')
+		->findAll();
 	  $manufacturerList = array();
 	  $counter = 0;
 	  foreach($manufacturers as $single) {
@@ -172,14 +191,12 @@ class ProductsController extends Controller
     }
     
     private function printJson($data) {
-    
 	  header('Content-Type: application/json');
 	  echo json_encode($data); 
 	  exit();
     }
     
     private function setRealPrice($origin) {
-
 	  if ($this->product['discount'][$origin]['reduction_type'] == 'percentage') {
 		  $discount = $this->product['price'][$origin] * $this->product['discount'][$origin]['reduction'];
 		  $this->product['priceReal'][$origin] = $this->product['price'][$origin] - $discount;
@@ -189,22 +206,30 @@ class ProductsController extends Controller
     }
     
     public function singleUpdateAction($id) {
-
 	  $em = array();
 	  if ($_POST['db'] !== 'both') {
-		$em[0] = $this->getDoctrine()->getManager($_POST['db']);
+		$em[0] = $this->getDoctrine()
+		      ->getManager($_POST['db']);
 	  } else {
-		$em[0] = $this->getDoctrine()->getManager($this->dbNew);
-		$em[1] = $this->getDoctrine()->getManager($this->dbOld);
+		$em[0] = $this->getDoctrine()
+		      ->getManager($this->dbNew);
+		$em[1] = $this->getDoctrine()
+		      ->getManager($this->dbOld);
 	  }
 	  foreach ($em as $single) {
 		if (isset($_POST['price'])) {
-		      $product = $single->getRepository('cmsspaBundle:Products')->find($id);
+		      $product = $single
+			    ->getRepository('cmsspaBundle:Products')
+			    ->find($id);
 		      $product->setPrice(floatval($_POST["price"]));
-		      $productShop = $single->getRepository('cmsspaBundle:ProductsShop')->find($id);
+		      $productShop = $single
+			    ->getRepository('cmsspaBundle:ProductsShop')
+			    ->find($id);
 		      $productShop->setPrice(floatval($_POST["price"]));
 		} elseif (isset($_POST['quantity'])) {
-		      $product = $single->getRepository('cmsspaBundle:StockAvailable')->find($id);
+		      $product = $single
+			    ->getRepository('cmsspaBundle:StockAvailable')
+			    ->find($id);
 		      $product->setQuantity(strip_tags($_POST['quantity']));
 		}
 		try {
