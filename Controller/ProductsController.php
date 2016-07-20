@@ -211,7 +211,6 @@ class ProductsController extends Controller
     }
     
     public function singleUpdateAction($id) {
-	  $em = array();
 	  if ($_POST['db'] !== 'both') {
 		$this->handler = array(
 		      $this->getDoctrine()
