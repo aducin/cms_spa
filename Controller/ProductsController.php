@@ -33,7 +33,7 @@ class ProductsController extends BaseController
           }
     }
     
-        public function detailsByIdFullEditionAction($id)
+    public function detailsByIdFullEditionAction($id)
     {
 	$this->getDbHandlers();
 	$product = $this->handler['emNew']
