@@ -106,16 +106,15 @@ class ProductsController extends Controller
 	  }
 	  
 	  $this->getDbHandlers();
-          $products = $this->handler['emNew']
+          $this->product = $this->handler['emNew']
 		->getRepository('cmsspaBundle:Products')
 		->findByNamePart($name);
 
-          if (!$products) {
+          if (!$this->product) {
 	    throw $this->createNotFoundException(
 		'No product with phrase:  '.$name
 	    );
 	  } else {
-		$this->product = array('products' => $products, 'name' => $name);
 		$response = $this->printJson($this->product);
 		return $response;
 		//return $this->render('cmsspaBundle:Products:detailsName.html.twig', array(
