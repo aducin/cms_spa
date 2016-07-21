@@ -146,10 +146,12 @@ class ProductsController extends Controller
     private function getPrices() {
 	  $this->product['price']['new'] = $this->handler['emNew']
 		->getRepository('cmsspaBundle:ProductsShop')
-		->find($this->product['id'])->getPrice();
+		->find($this->product['id'])
+		->getPrice();
 	  $this->product['price']['old'] = $this->handler['emOld']
 	        ->getRepository('cmsspaBundle:ProductsShop')
-		->find($this->product['id'])->getPrice();
+		->find($this->product['id'])
+		->getPrice();
 	  $this->product['discount']['new'] = $this->handler['emNew']
 	        ->getRepository('cmsspaBundle:SpecificPrice')
 		->findByIdProduct($this->product['id']); 
