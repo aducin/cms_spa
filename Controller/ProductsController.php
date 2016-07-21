@@ -7,21 +7,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Doctrine\ORM\Mapping as ORM;
 
 
-class ProductsController extends Controller
+class ProductsController extends BaseController
 {
-    private $dbNew = 'linuxPl';
-    private $dbOld = 'ogicom';
-    private $product = array();
-    private $handler = array();
-
-    private function getDbHandlers(){
-	  $this->handler = array(
-		'emNew' => $this->getDoctrine()
-		      ->getManager($this->dbNew), 
-		'emOld' => $this->getDoctrine()
-		      ->getManager($this->dbOld)
-	  );
-    }
     
     public function detailsByIdAction($id)
     {
