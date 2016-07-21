@@ -1,3 +1,10 @@
+cmsspa_ordersHistory:
+    path:     /orders/history/{id}
+    defaults: { _controller: cmsspaBundle:Orders:historyById }
+    methods:  GET
+    requirements:
+         id:  \d+
+
 cmsspa_ordersById:
     path:     /orders/{origin}/{id}
     defaults: { _controller: cmsspaBundle:Orders:detailsById }
