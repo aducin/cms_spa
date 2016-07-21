@@ -184,10 +184,10 @@ class ProductsController extends Controller
     }
     
     private function setRealPrice($origin) {
-	  if ($this->product['discount'][$origin]['reduction_type'] == 'percentage') {
+	  if ($this->product['discount'][$origin]['reductionType'] == 'percentage') {
 		  $discount = $this->product['price'][$origin] * $this->product['discount'][$origin]['reduction'];
 		  $this->product['priceReal'][$origin] = $this->product['price'][$origin] - $discount;
-	  } elseif ($this->product['discount'][$origin]['reduction_type'] == 'amount') {
+	  } elseif ($this->product['discount'][$origin]['reductionType'] == 'amount') {
 		  $this->product['priceReal'][$origin] = $this->product['price'][$origin] - $this->product['discount'][$origin]['reduction'];
 	  }
     }

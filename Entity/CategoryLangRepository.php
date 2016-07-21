@@ -16,7 +16,7 @@ class CategoryLangRepository extends \Doctrine\ORM\EntityRepository
 	  $categoryList = array();
           foreach($categories as $single) {
 		$categoryList[$counter]['id'] = $single['id_category'];
-		$categoryList[$counter]['meta_title'] = $single['meta_title'];
+		$categoryList[$counter]['metaTitle'] = $single['meta_title'];
 		$counter++;
 	  }
           return $categoryList;

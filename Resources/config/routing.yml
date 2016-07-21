@@ -1,3 +1,10 @@
+cmsspa_ordersById:
+    path:     /orders/{origin}/{id}
+    defaults: { _controller: cmsspaBundle:Orders:detailsById }
+    methods:  GET
+    requirements:
+         id:  \d+
+
 cmsspa_productsByIdComplete:
     path:     /products/{id}/edit
     defaults: { _controller: cmsspaBundle:Products:detailsByIdFullEdition }

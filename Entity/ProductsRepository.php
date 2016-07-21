@@ -17,7 +17,7 @@ class ProductsRepository extends \Doctrine\ORM\EntityRepository
      public function findByNamePart($phrase) 
      {
          return $this->getEntityManager()
-             ->createQuery('SELECT p.id_product, p.name FROM cmsspaBundle:ProductsLang p WHERE p.name LIKE :name ORDER BY p.id_product ASC')->setParameter('name', '%'.$phrase.'%')->getResult();
+             ->createQuery('SELECT p.id_product as id, p.name FROM cmsspaBundle:ProductsLang p WHERE p.name LIKE :name ORDER BY p.id_product ASC')->setParameter('name', '%'.$phrase.'%')->getResult();
      
      }
      
