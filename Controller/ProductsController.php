@@ -163,13 +163,6 @@ class ProductsController extends BaseController
 		->getQuantity();
     }
     
-    private function printJson($data) {
-          $response = new Response();
-	  $response->setContent(json_encode($data));
-	  $response->headers->set('Content-Type', 'application/json');
-	  return $response;
-    }
-    
     private function setRealPrice($origin) {
 	  if ($this->product['discount'][$origin]['reductionType'] == 'percentage') {
 		  $discount = $this->product['price'][$origin] * $this->product['discount'][$origin]['reduction'];

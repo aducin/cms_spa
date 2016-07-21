@@ -3,6 +3,7 @@
 namespace cms\spaBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Response;
 
 class BaseController extends Controller
 {
@@ -19,4 +20,12 @@ class BaseController extends Controller
 		      ->getManager($this->dbOld)
 	  );
     }
+    
+    protected function printJson($data) {
+          $response = new Response();
+	  $response->setContent(json_encode($data));
+	  $response->headers->set('Content-Type', 'application/json');
+	  return $response;
+    }
+    
 }
