@@ -89,7 +89,7 @@ class ProductsController extends Controller
 		  ->findAllNotEmptyCategories();
 	    $this->product['manufacturers'] = $this->handler['emNew']
 		  ->getRepository('cmsspaBundle:Manufacturer')
-		  ->findAllManufacturers();
+		  ->findAllNotEmptyManufacturers();
 	    $response = $this->printJson($this->product);
 	    return $response;
 	    //return $this->render('cmsspaBundle:Products:detailsFullEdition.html.twig', array(
@@ -138,7 +138,7 @@ class ProductsController extends Controller
 	  $this->getDbHandlers();
 	  $manufacturers = $this->handler['emNew']
 		  ->getRepository('cmsspaBundle:Manufacturer')
-		  ->findAllManufacturers();
+		  ->findAllNotEmptyManufacturers();
 	  $response = $this->printJson($manufacturers);
 	  return $response;
     }
