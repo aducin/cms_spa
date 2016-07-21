@@ -125,7 +125,7 @@ class ProductsController extends Controller
           }
     }
     
-    public function getCategoriesAction($json = true) {
+    public function getCategoriesAction() {
 	  $this->getDbHandlers();
 	  $categories = $this->handler['emNew']
 		  ->getRepository('cmsspaBundle:CategoryLang')
@@ -134,7 +134,7 @@ class ProductsController extends Controller
 	  return $response;
     }
     
-    public function getManufacturersAction($json = true) {
+    public function getManufacturersAction() {
 	  $this->getDbHandlers();
 	  $manufacturers = $this->handler['emNew']
 		  ->getRepository('cmsspaBundle:Manufacturer')
