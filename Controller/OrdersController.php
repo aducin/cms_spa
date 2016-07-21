@@ -17,14 +17,16 @@ class OrdersController extends BaseController
 	  $data = $this->handler[$origin]
 		->getRepository('cmsspaBundle:Orders')
 		->findCustomerId($id);
+          if(empty($data[0])) {
+		throw $this->createNotFoundException(
+		      'There is no order with ID:  '.$id
+	        );
+	  }
 	  $this->order['customer']['id'] = $data[0]['customerId'];
 	  $this->order['reference'] = $data[0]['reference'];
-	  $customer = $this->handler[$origin]
-	        ->getRepository('cmsspaBundle:Customer')
-	        ->find($this->order['customer']['id']);
-	  $this->order['customer']['firstname'] = $customer->getFirstname();
-	  $this->order['customer']['lastname'] = $customer->getLastname();
-	  $this->order['customer']['email'] = $customer->getEmail();
+	  $this->order['totalPaid'] = $data[0]['totalPaid'];
+	  $this->order['totalProduct'] = $data[0]['totalProduct'];
+	  $this->setCustomer($this->order['customer']['id'], $origin);
 	  $this->order['cartDetails'] = $this->handler[$origin]
 		->getRepository('cmsspaBundle:OrderDetail')
 		->findOrderById($id);
@@ -42,6 +44,58 @@ class OrdersController extends BaseController
 	  }
 	  $response = $this->printJson($this->order);
           return $response;
+    }
+    
+    public function historyByIdAction($id) {
+	  $this->getDbHandlers();
+	  $data = $this->handler['emOld']
+		->getRepository('cmsspaBundle:Orders')
+		->findCustomerId($id);
+	  if(empty($data[0])) {
+		throw $this->createNotFoundException(
+		      'There is no order with ID:  '.$id
+	        );
+	  }
+          $this->setCustomer($data[0]["customerId"], 'emOld');
+          $secondShopActivity = $this->handler['emNew']
+		->getRepository('cmsspaBundle:Customer')
+		->findCustomerByEmail($this->order['customer']['email']);
+	  $secondShopActivity != false ? $this->order['customer']['secondShopctivity'] = true : $this->order['customer']['secondShopctivity'] = false;
+	  $orders = $this->handler['emOld']
+		->getRepository('cmsspaBundle:Orders')
+		->findOrdersByCustomer($data[0]["customerId"]);
+	  $counter = 0;
+	  $innerCounter = 1;
+	  foreach ($orders as $single) {
+		if (floatval($single["totalProduct"]) >= 50) {
+		      $this->order['data'][$counter]["id"] = $single["id"];
+		      $this->order['data'][$counter]["reference"] = $single["reference"];
+		      $this->order['data'][$counter]["totalProduct"] = $single["totalProduct"];
+		      $this->order['data'][$counter]["totalShipping"] = $single["totalShipping"];
+		      $this->order['data'][$counter]["dateAdd"] = $single["dateAdd"];
+		      $this->order['data'][$counter]["ordNumber"] = $innerCounter;
+		      $counter++;
+		      if ( $innerCounter == 5 ) {
+			  $innerCounter = 'Rabat!';
+		      } elseif ( $innerCounter == 'Rabat!' ) {
+			  $innerCounter = 1;
+		      } else {
+			  $innerCounter++;
+		      }
+		}
+	  }
+	  $this->order['lastVoucher'] = $innerCounter - 1;
+	  $response = $this->printJson($this->order);
+          return $response;
+    }
+    
+    private function setCustomer($id, $origin) {
+	    $customer = $this->handler[$origin]
+		  ->getRepository('cmsspaBundle:Customer')
+		  ->find($id);
+	    $this->order['customer']['firstname'] = $customer->getFirstname();
+	    $this->order['customer']['lastname'] = $customer->getLastname();
+	    $this->order['customer']['email'] = $customer->getEmail();
     }
 
 }
