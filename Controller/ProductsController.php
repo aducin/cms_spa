@@ -39,10 +39,10 @@ class ProductsController extends Controller
 		$this->getPrices();
 		$this->getQuantities();
 		$response = $this->printJson($this->product);
-		//return $response;
-		return $this->render('cmsspaBundle:Products:detailsId.html.twig', array(
-		    'product' => $this->product
-		));
+		return $response;
+		//return $this->render('cmsspaBundle:Products:detailsId.html.twig', array(
+		//    'product' => $this->product
+		//));
           }
     }
     
@@ -84,8 +84,12 @@ class ProductsController extends Controller
 		  ->findTagList($product->getIdProduct());
 	    //$this->product['tagString'] = $this->product['productTags']['tagString'];
 	    unset($this->product['productTags']['tagString']);
-	    $this->product['categories'] = $this->getCategoriesAction(false);
-	    $this->product['manufacturers'] = $this->getManufacturersAction(false);
+	    $this->product['categories'] = $this->handler['emNew']
+		  ->getRepository('cmsspaBundle:CategoryLang')
+		  ->findAllNotEmptyCategories();
+	    $this->product['manufacturers'] = $this->handler['emNew']
+		  ->getRepository('cmsspaBundle:Manufacturer')
+		  ->findAllManufacturers();
 	    $response = $this->printJson($this->product);
 	    return $response;
 	    //return $this->render('cmsspaBundle:Products:detailsFullEdition.html.twig', array(
@@ -122,24 +126,21 @@ class ProductsController extends Controller
     }
     
     public function getCategoriesAction($json = true) {
-	  $categories = $this->getDoctrine()
-		->getRepository('cmsspaBundle:CategoryLang')
-		->findAll();
-	  $categoryList = array();
-	  $counter = 0;
-	  $emptyCats = array(1, 10, 14, 15, 19, 20, 22, 23, 24, 25, 26, 27, 32, 33);
-	  foreach($categories as $single) {
-	      if (!in_array($single->getIdCategory(), $emptyCats)) {
-		    $categoryList[$counter]['id'] = $single->getIdCategory();
-		    $categoryList[$counter]['meta_title'] = $single->getMetaTitle();
-		    $counter++;
-	      }
-	  }
-	  if ($json === true) {
-		$this->printJson($categoryList);
-	  } else {
-		return $categoryList;
-	  }
+	  $this->getDbHandlers();
+	  $categories = $this->handler['emNew']
+		  ->getRepository('cmsspaBundle:CategoryLang')
+		  ->findAllNotEmptyCategories();
+	  $response = $this->printJson($categories);
+	  return $response;
+    }
+    
+    public function getManufacturersAction($json = true) {
+	  $this->getDbHandlers();
+	  $manufacturers = $this->handler['emNew']
+		  ->getRepository('cmsspaBundle:Manufacturer')
+		  ->findAllManufacturers();
+	  $response = $this->printJson($manufacturers);
+	  return $response;
     }
     
     private function getPrices() {
@@ -172,26 +173,6 @@ class ProductsController extends Controller
 		->getRepository('cmsspaBundle:StockAvailable')
 		->find($this->product['id'])
 		->getQuantity();
-    }
-    
-    public function getManufacturersAction($json = true) {
-	  $manufacturers = $this->getDoctrine()
-		->getRepository('cmsspaBundle:Manufacturer')
-		->findAll();
-	  $manufacturerList = array();
-	  $counter = 0;
-	  foreach($manufacturers as $single) {
-		if ($single->getName() != 'pusty') {
-		      $manufacturerList[$counter]['id'] = $single->getIdManufacturer();
-		      $manufacturerList[$counter]['name'] = $single->getName();
-		      $counter++;
-		}
-	  }
-	  if ($json === true) {
-		$this->printJson($manufacturerList); 
-	  } else {
-		return $manufacturerList;
-	  }
     }
     
     private function printJson($data) {
