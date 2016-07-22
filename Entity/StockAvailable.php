@@ -18,6 +18,11 @@ class StockAvailable
       * @ORM\GeneratedValue(strategy="AUTO")
       */
       protected $id_product;
+      
+      /**
+      * @ORM\Column(type="integer")
+      */
+      protected $id_product_attribute;
 
       /**
       * @ORM\Column(type="integer")
@@ -56,5 +61,29 @@ class StockAvailable
     public function getQuantity()
     {
         return $this->quantity;
+    }
+
+    /**
+     * Set idProductAttribute
+     *
+     * @param integer $idProductAttribute
+     *
+     * @return StockAvailable
+     */
+    public function setIdProductAttribute($idProductAttribute)
+    {
+        $this->id_product_attribute = $idProductAttribute;
+
+        return $this;
+    }
+
+    /**
+     * Get idProductAttribute
+     *
+     * @return integer
+     */
+    public function getIdProductAttribute()
+    {
+        return $this->id_product_attribute;
     }
 }
