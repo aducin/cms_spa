@@ -10,11 +10,12 @@ use Doctrine\ORM\Mapping as ORM;
 class OrdersController extends BaseController
 {
 
+    private $dataBase;
+    private $secondDatabase;
+
     public function detailsByIdAction($origin, $id) {
-	  $origin = 'em'.ucfirst($origin);
-	  $origin == 'emNew' ? $secondDb = 'emOld' : $secondDb = 'emNew';
-	  $this->getDbHandlers();
-	  $data = $this->handler[$origin]
+	  $this->setDatabase($origin);
+	  $data = $this->handler[$this->dataBase]
 		->getRepository('cmsspaBundle:Orders')
 		->findCustomerId($id);
           if(empty($data[0])) {
@@ -30,17 +31,17 @@ class OrdersController extends BaseController
 	  $this->order['reference'] = $data[0]['reference'];
 	  $this->order['totalPaid'] = $data[0]['totalPaid'];
 	  $this->order['totalProduct'] = $data[0]['totalProduct'];
-	  $this->setCustomer($this->order['customer']['id'], $origin);
-	  $this->order['cartDetails'] = $this->handler[$origin]
+	  $this->setCustomer($this->order['customer']['id'], $this->dataBase);
+	  $this->order['cartDetails'] = $this->handler[$this->dataBase]
 		->getRepository('cmsspaBundle:OrderDetail')
 		->findOrderById($id);
 	  $counter = 0;
 	  foreach ($this->order['cartDetails'] as $single) {
-		$this->order['cartDetails'][$counter]['quantity']['current'] = $this->handler[$origin]
+		$this->order['cartDetails'][$counter]['quantity']['current'] = $this->handler[$this->dataBase]
 		      ->getRepository('cmsspaBundle:StockAvailable')
 		      ->find($single['productId'])
 		      ->getQuantity();
-		$this->order['cartDetails'][$counter]['quantity']['toUpdate'] = $this->handler[$secondDb]
+		$this->order['cartDetails'][$counter]['quantity']['toUpdate'] = $this->handler[$this->secondDatabase]
 		      ->getRepository('cmsspaBundle:StockAvailable')
 		      ->find($single['productId'])
 		      ->getQuantity();
@@ -48,6 +49,43 @@ class OrdersController extends BaseController
 	  }
 	  $response = $this->printJson($this->order);
           return $response;
+    }
+    
+    public function evenQuantityByIdAction($origin, $id) {
+	  $this->setDatabase($origin);
+	  $this->order['cartDetails'] = $this->handler[$this->dataBase]
+		->getRepository('cmsspaBundle:OrderDetail')
+		->findOrderById($id);
+          foreach ($this->order['cartDetails'] as $single) {
+		if ($single["attributeId"] == 0) {
+		      $currentQuantityToUpdate = $this->handler[$this->dataBase]
+			    ->getRepository('cmsspaBundle:StockAvailable')
+			    ->find($single['productId'])
+			    ->getQuantity();
+	              $productToUpdate = $this->handler[$this->secondDatabase]
+			    ->getRepository('cmsspaBundle:StockAvailable')
+			    ->find($single['productId']);
+		      $productToUpdate->setQuantity(intval($currentQuantityToUpdate));
+		      try {
+			    $this->handler[$this->secondDatabase]->persist($productToUpdate);
+			    $this->handler[$this->secondDatabase]->flush();
+			    $result = array('success' => true);
+		      } catch (\Exception $e) {
+			    $response = $this->printJson($result);
+			    return $response;
+		      }
+		} else {
+		      $result = array('success' => 'attribute`s handling not prepared yet');
+		}
+          }
+	  $response = $this->printJson($result);
+	  return $response;
+    }
+    
+    private function setDatabase($origin) {
+	  $this->dataBase = 'em'.ucfirst($origin);
+	  $this->dataBase == 'emNew' ? $this->secondDatabase = 'emOld' : $this->secondDatabase = 'emNew';
+	  $this->getDbHandlers();
     }
     
     /*
