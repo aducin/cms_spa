@@ -10,7 +10,7 @@ rest_ordersById:
     defaults: { _controller: cmsspaBundle:Orders:detailsById }
     methods:  GET
     requirements:
-         culture:  new|old
+         origin:  new|old
          id:  \d+
 
 rest_productsByIdComplete:
