@@ -4,7 +4,7 @@ rest_customerVouchers:
     methods:  GET
     requirements:
          origin:  new|old
-         id:  \d+
+         id:  \d+        
 
 rest_ordersById:
     path:     /orders/{origin}/{id}
@@ -13,6 +13,14 @@ rest_ordersById:
     requirements:
          origin:  new|old
          id:  \d+
+         
+rest_evenById:
+    path:     /orders/{origin}/{id}
+    defaults: { _controller: cmsspaBundle:Orders:evenQuantityById }
+    methods:  PUT
+    requirements:
+         origin:  new|old
+         id:  \d+ 
   
 rest_singleUpdate:
     path:     /products/{id}
