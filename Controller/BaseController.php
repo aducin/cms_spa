@@ -27,4 +27,19 @@ class BaseController extends Controller
 	  $response->headers->set('Content-Type', 'application/json');
 	  return $response;
     }
+    
+    protected function setCustomer($id, $origin) {
+	    $customer = $this->handler[$origin]
+		  ->getRepository('cmsspaBundle:Customer')
+		  ->find($id);
+            if ($customer == null) {
+		  throw $this->createNotFoundException(
+		      'No customer with ID:  '.$id
+		  );
+            }
+	    $this->order['customer']['firstname'] = $customer->getFirstname();
+	    $this->order['customer']['lastname'] = $customer->getLastname();
+	    $this->order['customer']['email'] = $customer->getEmail();
+    }
+    
 }

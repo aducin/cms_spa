@@ -1,8 +1,9 @@
-rest_ordersHistory:
-    path:     /orders/old/{id}/history
-    defaults: { _controller: cmsspaBundle:Orders:historyById }
+rest_customerVouchers:
+    path:     /customer/{origin}/{id}/vouchers
+    defaults: { _controller: cmsspaBundle:Customers:vouchersById }
     methods:  GET
     requirements:
+         origin:  new|old
          id:  \d+
 
 rest_ordersById:
@@ -11,13 +12,6 @@ rest_ordersById:
     methods:  GET
     requirements:
          origin:  new|old
-         id:  \d+
-
-rest_productsByIdComplete:
-    path:     /products/{id}/edit
-    defaults: { _controller: cmsspaBundle:Products:detailsByIdFullEdition }
-    methods:  GET
-    requirements:
          id:  \d+
   
 rest_singleUpdate:

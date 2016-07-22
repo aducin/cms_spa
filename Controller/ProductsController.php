@@ -10,7 +10,8 @@ use Doctrine\ORM\Mapping as ORM;
 class ProductsController extends BaseController
 {
     
-    public function detailsByIdAction($id)
+    /*
+    public function detailsByIdAction($id) // elder version for short search
     {
 	  $this->getDbHandlers();
 	  $this->product['id'] = $id;
@@ -27,13 +28,11 @@ class ProductsController extends BaseController
 		$this->getQuantities();
 		$response = $this->printJson($this->product);
 		return $response;
-		//return $this->render('cmsspaBundle:Products:detailsId.html.twig', array(
-		//    'product' => $this->product
-		//));
           }
     }
+    */
     
-    public function detailsByIdFullEditionAction($id)
+    public function detailsByIdAction($id)
     {
 	$this->getDbHandlers();
 	$product = $this->handler['emNew']
@@ -45,43 +44,29 @@ class ProductsController extends BaseController
 		  'There is no product with ID:  '.$id
 	      );
 	} else {
-	    $this->product['id'] = $product->getIdProduct();
-	    $this->product['name'] = $product->getName();
-	    $this->product['description'] = $product->removeHtmlWhitespace($product->getDescription());
-	    $this->product['descriptionShort'] = $product->removeHtmlWhitespace($product->getDescriptionShort());
-	    $this->product['metaDescription'] = $product->getMetaDescription();
-	    $this->product['metaTitle'] = $product->getMetaTitle();
-	    $this->product['linkRewrite'] = $product->getLinkRewrite();
-	    $this->product['manufacturer'] = $this->handler['emNew']
-		  ->getRepository('cmsspaBundle:Products')
-		  ->find($id)
-		  ->getIdManufacturer();
+	    $this->product['id'] = intval($id);
 	    $this->getPrices();
 	    $this->getQuantities();
-	    $additionalDetails = $this->handler['emNew']
-		  ->getRepository('cmsspaBundle:ProductsShop')
-		  ->find($id);
-            $this->product['condition'] = $additionalDetails->getCondition();
-	    $this->product['active'] = $additionalDetails->getActive();
-	    $this->product['productCategories'] = $this->handler['emNew']
-		  ->getRepository('cmsspaBundle:CategoryProduct')
-		  ->findProductCategories($product->getIdProduct());
-	    $this->product['productTags'] = $this->handler['emNew']
-		  ->getRepository('cmsspaBundle:ProductTag')
-		  ->findTagList($product->getIdProduct());
-	    //$this->product['tagString'] = $this->product['productTags']['tagString'];
-	    unset($this->product['productTags']['tagString']);
-	    $this->product['categories'] = $this->handler['emNew']
-		  ->getRepository('cmsspaBundle:CategoryLang')
-		  ->findAllNotEmptyCategories();
-	    $this->product['manufacturers'] = $this->handler['emNew']
-		  ->getRepository('cmsspaBundle:Manufacturer')
-		  ->findAllNotEmptyManufacturers();
-	    $response = $this->printJson($this->product);
-	    return $response;
-	    //return $this->render('cmsspaBundle:Products:detailsFullEdition.html.twig', array(
-            //      'product' => $this->product
-	    //));
+	    if (isset($_GET['basic']) && $_GET['basic'] == true) {
+		  $this->product['name'] = $this->handler['emNew']
+			->getRepository('cmsspaBundle:Products')
+			->findNameById($id);
+		  $response = $this->printJson($this->product);
+		  return $response;
+		  //return $this->render('cmsspaBundle:Products:detailsId.html.twig', array(
+		  //    'product' => $this->product
+		  //));
+	    } else {
+		  $additionalDetails = $this->handler['emNew']
+			->getRepository('cmsspaBundle:ProductsShop')
+			->find($id);
+		  $this->setProductDates($product, $additionalDetails);
+		  $response = $this->printJson($this->product);
+		  return $response;
+		  //return $this->render('cmsspaBundle:Products:detailsFullEdition.html.twig', array(
+		  //      'product' => $this->product
+		  //));
+	    }
         }
     }
     
@@ -161,6 +146,35 @@ class ProductsController extends BaseController
 		->getRepository('cmsspaBundle:StockAvailable')
 		->find($this->product['id'])
 		->getQuantity();
+    }
+    
+    private function setProductDates($product, $additionalDetails) {
+	  $this->product['name'] = $product->getName();
+          $this->product['description'] = $product->removeHtmlWhitespace($product->getDescription());
+	  $this->product['descriptionShort'] = $product->removeHtmlWhitespace($product->getDescriptionShort());
+	  $this->product['metaDescription'] = $product->getMetaDescription();
+	  $this->product['metaTitle'] = $product->getMetaTitle();
+	  $this->product['linkRewrite'] = $product->getLinkRewrite();
+	  $this->product['condition'] = $additionalDetails->getCondition();
+	  $this->product['active'] = $additionalDetails->getActive();
+	  $this->product['manufacturer'] = $this->handler['emNew']
+			->getRepository('cmsspaBundle:Products')
+			->find($this->product['id'])
+			->getIdManufacturer();
+          $this->product['productCategories'] = $this->handler['emNew']
+			->getRepository('cmsspaBundle:CategoryProduct')
+			->findProductCategories($product->getIdProduct());
+	  $this->product['productTags'] = $this->handler['emNew']
+			->getRepository('cmsspaBundle:ProductTag')
+			->findTagList($product->getIdProduct());
+		  //$this->product['tagString'] = $this->product['productTags']['tagString'];
+	  unset($this->product['productTags']['tagString']);
+	  $this->product['categories'] = $this->handler['emNew']
+			->getRepository('cmsspaBundle:CategoryLang')
+			->findAllNotEmptyCategories();
+	  $this->product['manufacturers'] = $this->handler['emNew']
+			->getRepository('cmsspaBundle:Manufacturer')
+			->findAllNotEmptyManufacturers();
     }
     
     private function setRealPrice($origin) {

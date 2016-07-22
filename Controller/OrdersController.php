@@ -23,6 +23,10 @@ class OrdersController extends BaseController
 	        );
 	  }
 	  $this->order['customer']['id'] = $data[0]['customerId'];
+	  if (isset($_GET['basic']) && $_GET['basic'] == true) {
+		$response = $this->printJson($this->order);
+		return $response;
+	  }
 	  $this->order['reference'] = $data[0]['reference'];
 	  $this->order['totalPaid'] = $data[0]['totalPaid'];
 	  $this->order['totalProduct'] = $data[0]['totalProduct'];
@@ -46,6 +50,7 @@ class OrdersController extends BaseController
           return $response;
     }
     
+    /*
     public function historyByIdAction($id) {
 	  $this->getDbHandlers();
 	  $data = $this->handler['emOld']
@@ -88,14 +93,6 @@ class OrdersController extends BaseController
 	  $response = $this->printJson($this->order);
           return $response;
     }
-    
-    private function setCustomer($id, $origin) {
-	    $customer = $this->handler[$origin]
-		  ->getRepository('cmsspaBundle:Customer')
-		  ->find($id);
-	    $this->order['customer']['firstname'] = $customer->getFirstname();
-	    $this->order['customer']['lastname'] = $customer->getLastname();
-	    $this->order['customer']['email'] = $customer->getEmail();
-    }
+    */
 
 }
