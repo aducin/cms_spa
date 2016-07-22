@@ -1,49 +1,49 @@
-cmsspa_ordersHistory:
+rest_ordersHistory:
     path:     /orders/history/{id}
     defaults: { _controller: cmsspaBundle:Orders:historyById }
     methods:  GET
     requirements:
          id:  \d+
 
-cmsspa_ordersById:
+rest_ordersById:
     path:     /orders/{origin}/{id}
     defaults: { _controller: cmsspaBundle:Orders:detailsById }
     methods:  GET
     requirements:
          id:  \d+
 
-cmsspa_productsByIdComplete:
+rest_productsByIdComplete:
     path:     /products/{id}/edit
     defaults: { _controller: cmsspaBundle:Products:detailsByIdFullEdition }
     methods:  GET
     requirements:
          id:  \d+
   
-cmsspa_singleUpdate:
+rest_singleUpdate:
     path:     /products/{id}
     defaults: { _controller: cmsspaBundle:Products:singleUpdate }
     methods:  POST
     requirements:
          id:  \d+
          
-cmsspa_productsById:
+rest_productsById:
     path:     /products/{id}
     defaults: { _controller: cmsspaBundle:Products:detailsById }
     methods:  GET
     requirements:
          id:  \d+
 
-cmsspa_productsByName:
+rest_productsByName:
     path:     /products
     defaults: { _controller: cmsspaBundle:Products:detailsByName }
     methods:  GET
     
-cmsspa_getCategories:
+rest_getCategories:
     path:     /categories
     defaults: { _controller: cmsspaBundle:Products:getCategories }
     methods:  GET
     
-cmsspa_getManufactorers:
+rest_getManufactorers:
     path:     /manufacturers
     defaults: { _controller: cmsspaBundle:Products:getManufacturers }
     methods:  GET
