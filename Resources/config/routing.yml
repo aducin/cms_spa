@@ -1,5 +1,5 @@
 rest_ordersHistory:
-    path:     /orders/history/{id}
+    path:     /orders/old/{id}/history
     defaults: { _controller: cmsspaBundle:Orders:historyById }
     methods:  GET
     requirements:
