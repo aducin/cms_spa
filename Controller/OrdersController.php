@@ -39,12 +39,10 @@ class OrdersController extends BaseController
 	  foreach ($this->order['cartDetails'] as $single) {
 		$this->order['cartDetails'][$counter]['quantity']['current'] = $this->handler[$this->dataBase]
 		      ->getRepository('cmsspaBundle:StockAvailable')
-		      ->find($single['productId'])
-		      ->getQuantity();
+		      ->getCurrentQuantity($single["productId"], $single["attributeId"]);
 		$this->order['cartDetails'][$counter]['quantity']['toUpdate'] = $this->handler[$this->secondDatabase]
 		      ->getRepository('cmsspaBundle:StockAvailable')
-		      ->find($single['productId'])
-		      ->getQuantity();
+		      ->getCurrentQuantity($single["productId"], $single["attributeId"]);
 		$counter++ ;
 	  }
 	  $response = $this->printJson($this->order);
@@ -57,25 +55,17 @@ class OrdersController extends BaseController
 		->getRepository('cmsspaBundle:OrderDetail')
 		->findOrderById($id);
           foreach ($this->order['cartDetails'] as $single) {
-		if ($single["attributeId"] == 0) {
-		      $currentQuantityToUpdate = $this->handler[$this->dataBase]
+		$currentQuantity = $this->handler[$this->dataBase]
+		      ->getRepository('cmsspaBundle:StockAvailable')
+		      ->getCurrentQuantity($single["productId"], $single["attributeId"]);
+		try {
+		      $this->handler[$this->secondDatabase]
 			    ->getRepository('cmsspaBundle:StockAvailable')
-			    ->find($single['productId'])
-			    ->getQuantity();
-	              $productToUpdate = $this->handler[$this->secondDatabase]
-			    ->getRepository('cmsspaBundle:StockAvailable')
-			    ->find($single['productId']);
-		      $productToUpdate->setQuantity(intval($currentQuantityToUpdate));
-		      try {
-			    $this->handler[$this->secondDatabase]->persist($productToUpdate);
-			    $this->handler[$this->secondDatabase]->flush();
-			    $result = array('success' => true);
-		      } catch (\Exception $e) {
-			    $response = $this->printJson($result);
-			    return $response;
-		      }
-		} else {
-		      $result = array('success' => 'attribute`s handling not prepared yet');
+			    ->evenQuantityAndAttribute($single["productId"], $single["attributeId"], $currentQuantity);
+		      $result = array('success' => true);
+		} catch (\Exception $e) {
+	              $response = $this->printJson(array('success' => false));
+		      return $response;
 		}
           }
 	  $response = $this->printJson($result);

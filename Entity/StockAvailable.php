@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 
 /**
-  * @ORM\Entity
+  * @ORM\Entity(repositoryClass="cms\spaBundle\Entity\StockAvailableRepository")
   * @ORM\Table(name="ps_stock_available")
   */
 class StockAvailable
@@ -15,11 +15,11 @@ class StockAvailable
       /**
       * @ORM\Id
       * @ORM\Column(type="integer")
-      * @ORM\GeneratedValue(strategy="AUTO")
       */
       protected $id_product;
       
       /**
+      * @ORM\Id
       * @ORM\Column(type="integer")
       */
       protected $id_product_attribute;
