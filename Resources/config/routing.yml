@@ -15,6 +15,14 @@ rest_ordersById:
          id:  \d+
          
 rest_evenById:
+    path:     /orders/{origin}/{id}/even
+    defaults: { _controller: cmsspaBundle:Orders:evenQuantityById }
+    methods:  GET
+    requirements:
+         origin:  new|old
+         id:  \d+ 
+         
+rest_evenById:
     path:     /orders/{origin}/{id}
     defaults: { _controller: cmsspaBundle:Orders:evenQuantityById }
     methods:  PUT
@@ -23,15 +31,15 @@ rest_evenById:
          id:  \d+ 
   
 rest_singleUpdate:
-    path:     /products/{id}
-    defaults: { _controller: cmsspaBundle:Products:singleUpdate }
+    path:     /products/{id}/{attribute}
+    defaults: { _controller: cmsspaBundle:Products:singleUpdate, attribute: 0 }
     methods:  POST
     requirements:
          id:  \d+
          
 rest_productsById:
-    path:     /products/{id}
-    defaults: { _controller: cmsspaBundle:Products:detailsById }
+    path:     /products/{id}/{attribute}
+    defaults: { _controller: cmsspaBundle:Products:detailsById, attribute: 0 }
     methods:  GET
     requirements:
          id:  \d+

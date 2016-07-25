@@ -4,6 +4,7 @@ namespace cms\spaBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Response;
+use cms\spaBundle\Entity\ProductHistory;
 use Doctrine\ORM\Mapping as ORM;
 
 
@@ -11,7 +12,6 @@ class OrdersController extends BaseController
 {
 
     private $dataBase;
-    private $secondDatabase;
 
     public function detailsByIdAction($origin, $id) {
 	  $this->setDatabase($origin);
@@ -62,6 +62,7 @@ class OrdersController extends BaseController
 		      $this->handler[$this->secondDatabase]
 			    ->getRepository('cmsspaBundle:StockAvailable')
 			    ->evenQuantityAndAttribute($single["productId"], $single["attributeId"], $currentQuantity);
+		      $this->setProductHistory($single["productId"], $single["attributeId"], $currentQuantity);
 		      $result = array('success' => true);
 		} catch (\Exception $e) {
 	              $response = $this->printJson(array('success' => false));

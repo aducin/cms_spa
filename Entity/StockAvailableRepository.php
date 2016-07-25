@@ -13,7 +13,6 @@ class StockAvailableRepository extends \Doctrine\ORM\EntityRepository
 	    $q = $qb->update('cmsspaBundle:StockAvailable', 's')
 		  ->set('s.quantity', ':quantity')
 		  ->where('s.id_product = :id AND s.id_product_attribute = :attribute')
-		  //->where('s.id_product_attribute = :attribute')
 		  ->setParameter('quantity', $quantity)
 		  ->setParameter('id', $id)
 		  ->setParameter('attribute', $attribute)

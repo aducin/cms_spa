@@ -4,6 +4,7 @@ namespace cms\spaBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Response;
+use cms\spaBundle\Entity\ProductHistory;
 use Doctrine\ORM\Mapping as ORM;
 
 
@@ -32,7 +33,7 @@ class ProductsController extends BaseController
     }
     */
     
-    public function detailsByIdAction($id)
+    public function detailsByIdAction($id, $attribute)
     {
 	$this->getDbHandlers();
 	$product = $this->handler['emNew']
@@ -45,6 +46,35 @@ class ProductsController extends BaseController
 	      );
 	} else {
 	    $this->product['id'] = intval($id);
+	    if ($attribute == 0) {
+		  $this->product['attribute']['new'] = $this->handler['emNew']
+			->getRepository('cmsspaBundle:ProductAttribute')
+			->checkProductAttribute($id);
+		  if (!empty($this->product['attribute']['new'])) {
+			$this->product['attribute']['old'] = $this->handler['emOld']
+			      ->getRepository('cmsspaBundle:ProductAttribute')
+			      ->checkProductAttribute($id);
+			$result = array(
+			      'success' => false, 
+			      'reason' => 'attribute needed', 
+			      'dataNew' => $this->product['attribute']['new'],
+			      'dataOld' => $this->product['attribute']['old']
+			);
+			$response = $this->printJson($result);
+			return $response;
+		  } else {
+			$this->product['attribute'] = array ('new' => 0, 'old' => 0);
+		  }
+	    } else {
+		  $explode = explode('-', $attribute);
+		  $this->product['attribute'] = array ('new' => $explode[0], 'old' => $explode[1]);
+		  $this->product['attribute']['newName'] = $this->handler['emNew']
+			->getRepository('cmsspaBundle:ProductAttribute')
+			->checkAttributeName($explode[0]);
+		  $this->product['attribute']['oldName'] = $this->handler['emOld']
+			->getRepository('cmsspaBundle:ProductAttribute')
+			->checkAttributeName($explode[1]);
+	    }
 	    $this->getPrices();
 	    $this->getQuantities();
 	    if (isset($_GET['basic']) && $_GET['basic'] == true) {
@@ -140,12 +170,10 @@ class ProductsController extends BaseController
     private function getQuantities() {
 	  $this->product['quantity']['new'] = $this->handler['emNew']
 		->getRepository('cmsspaBundle:StockAvailable')
-		->find($this->product['id'])
-		->getQuantity();
+		->getCurrentQuantity($this->product['id'], $this->product['attribute']['new']);
 	  $this->product['quantity']['old'] = $this->handler['emOld']
 		->getRepository('cmsspaBundle:StockAvailable')
-		->find($this->product['id'])
-		->getQuantity();
+		->getCurrentQuantity($this->product['id'], $this->product['attribute']['old']);
     }
     
     private function setProductDates($product, $additionalDetails) {
@@ -186,15 +214,19 @@ class ProductsController extends BaseController
 	  }
     }
     
-    public function singleUpdateAction($id) {
+    public function singleUpdateAction($id, $attribute) {
 	  if ($_POST['db'] !== 'both') {
 		$this->handler = array(
 		      $this->getDoctrine()
 		      ->getManager($_POST['db'])
 		);
+		$arrayAttribute = array($attribute);
 	  } else {
 		$this->getDbHandlers();
+		$explode = explode('-', $attribute);
+		$arrayAttribute = array($explode[0], $explode[1]);
 	  }
+	  $counter = 0;
 	  foreach ($this->handler as $single) {
 		if (isset($_POST['price'])) {
 		      $product = $single
@@ -206,11 +238,16 @@ class ProductsController extends BaseController
 			    ->find($id);
 		      $productShop->setPrice(floatval($_POST["price"]));
 		} elseif (isset($_POST['quantity'])) {
+		      if ($_POST['db'] !== 'both') {
+			    $this->secondDatabase = $_POST['db'] == 'linuxPl' ? 0 : 1;
+		      } else {
+			    $this->secondDatabase = $counter == 0 ? 1 : 0;
+		      }
 		      $product = $single
 			    ->getRepository('cmsspaBundle:StockAvailable')
-			    ->find($id);
-		      $product->setQuantity(strip_tags($_POST['quantity']));
+			    ->evenQuantityAndAttribute($id, $arrayAttribute[$counter], $_POST['quantity']);
 		}
+		$counter++;
 		try {
 		      $single->persist($product);
 		      if (isset($productShop)) {
