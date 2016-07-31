@@ -214,67 +214,7 @@ class ProductsController extends BaseController
 	  return $response;
     }
     
-    private function setProductDates($product, $additionalDetails) {
-	  $this->product['name'] = $product->getName();
-          $this->product['description'] = $product->removeHtmlWhitespace($product->getDescription());
-	  $this->product['descriptionShort'] = $product->removeHtmlWhitespace($product->getDescriptionShort());
-	  $this->product['metaDescription'] = $product->getMetaDescription();
-	  $this->product['metaTitle'] = $product->getMetaTitle();
-	  $this->product['linkRewrite'] = $product->getLinkRewrite();
-	  $this->product['condition'] = $additionalDetails->getCondition();
-	  $this->product['active'] = $additionalDetails->getActive();
-	  $this->product['manufacturer'] = $this->handler['emNew']
-			->getRepository('cmsspaBundle:Products')
-			->find($this->product['id'])
-			->getIdManufacturer();
-          $this->product['productCategories'] = $this->handler['emNew']
-			->getRepository('cmsspaBundle:CategoryProduct')
-			->findProductCategories($product->getIdProduct());
-	  $this->product['productCategoriesName'] = array();
-	  $counter = 0;
-          foreach ($this->product['productCategories'] as $single) {
-          $this->product['productCategoriesName'][$counter] = $this->handler['emNew']
-			->getRepository('cmsspaBundle:CategoryLang')
-			->find($single)->getMetaTitle();
-          $counter++;
-          }
-	  $this->product['productTags'] = $this->handler['emNew']
-			->getRepository('cmsspaBundle:ProductTag')
-			->findTagList($product->getIdProduct());
-		  //$this->product['tagString'] = $this->product['productTags']['tagString'];
-	  unset($this->product['productTags']['tagString']);
-	  $this->product['images'] = $this->handler['emOld']
-			->getRepository('cmsspaBundle:Image')
-			->findCoverImage($product->getIdProduct(), true);
-	  $this->product['categories'] = $this->handler['emNew']
-			->getRepository('cmsspaBundle:CategoryLang')
-			->findAllNotEmptyCategories();
-	  $counter = 0;
-	  foreach ($this->product['categories'] as $single) {
-		if (in_array($single['id'], $this->product['productCategories'])) {
-		      $this->product['categories'][$counter]['checked'] = true;
-		} else {
-		      $this->product['categories'][$counter]['checked'] = false;
-		}
-		$counter++;
-	  }
-	  $this->product['manufacturers'] = $this->handler['emNew']
-			->getRepository('cmsspaBundle:Manufacturer')
-			->findAllNotEmptyManufacturers();
-    }
-    
-    private function setRealPrice($origin) {
-	  if ($this->product['discount'][$origin]['reductionType'] == 'percentage') {
-		  $discount = $this->product['price'][$origin] * $this->product['discount'][$origin]['reduction'];
-		  $priceReal = $this->product['price'][$origin] - $discount;
-		  $this->product['priceReal'][$origin] = number_format((float) $priceReal, 2, '.', '');
-	  } elseif ($this->product['discount'][$origin]['reductionType'] == 'amount') {
-		  $priceReal = $this->product['price'][$origin] - $this->product['discount'][$origin]['reduction'];
-		  $this->product['priceReal'][$origin] = number_format((float) $priceReal, 2, '.', '');
-	  }
-    }
-    
-    public function singleUpdateAction($id, $fAttribute, $sAttribute = null) {
+    public function productUpdateAction($id, $fAttribute, $sAttribute = null) {
 	  if ($GLOBALS["_PUT"]['db'] !== 'both') {
 		$this->handler = array(
 		      $this->getDoctrine()
@@ -323,4 +263,72 @@ class ProductsController extends BaseController
 	  $response = $this->printJson($result);
 	  return $response;
     }
+    
+    private function setProductDates($product, $additionalDetails) {
+	  $this->product['name'] = $product->getName();
+          $this->product['description'] = $product->removeHtmlWhitespace($product->getDescription());
+	  $this->product['descriptionShort'] = $product->removeHtmlWhitespace($product->getDescriptionShort());
+	  $this->product['metaDescription'] = $product->getMetaDescription();
+	  $this->product['metaTitle'] = $product->getMetaTitle();
+	  $this->product['linkRewrite'] = $product->getLinkRewrite();
+	  $this->product['condition'] = $additionalDetails->getCondition();
+	  $this->product['productConditions'] = array();
+	  $this->product['productConditions'][0] = array('value' => 'used', 'name' => 'Używany');
+	  $this->product['productConditions'][1] = array('value' => 'new', 'name' => 'Nowy');
+	  $this->product['productConditions'][2] = array('value' => 'renewed', 'name' => 'Odnowiony');
+	  $this->product['active'] = $additionalDetails->getActive();
+	  $this->product['productActivity'] = array();
+	  $this->product['productActivity'][0] = array('value' => 0, 'name' => 'Nieaktywny');
+	  $this->product['productActivity'][1] = array('value' => 1, 'name' => 'Aktywny');
+	  $this->product['manufactorer'] = $this->handler['emNew']
+			->getRepository('cmsspaBundle:Products')
+			->find($this->product['id'])
+			->getIdManufacturer();
+          $this->product['productCategories'] = $this->handler['emNew']
+			->getRepository('cmsspaBundle:CategoryProduct')
+			->findProductCategories($product->getIdProduct());
+	  $this->product['productCategoriesName'] = array();
+	  $counter = 0;
+          foreach ($this->product['productCategories'] as $single) {
+          $this->product['productCategoriesName'][$counter] = $this->handler['emNew']
+			->getRepository('cmsspaBundle:CategoryLang')
+			->find($single)->getMetaTitle();
+          $counter++;
+          }
+	  $this->product['productTags'] = $this->handler['emNew']
+			->getRepository('cmsspaBundle:ProductTag')
+			->findTagList($product->getIdProduct());
+		  //$this->product['tagString'] = $this->product['productTags']['tagString'];
+	  unset($this->product['productTags']['tagString']);
+	  $this->product['images'] = $this->handler['emOld']
+			->getRepository('cmsspaBundle:Image')
+			->findCoverImage($product->getIdProduct(), true);
+	  $this->product['categories'] = $this->handler['emNew']
+			->getRepository('cmsspaBundle:CategoryLang')
+			->findAllNotEmptyCategories();
+	  $counter = 0;
+	  foreach ($this->product['categories'] as $single) {
+		if (in_array($single['id'], $this->product['productCategories'])) {
+		      $this->product['categories'][$counter]['checked'] = true;
+		} else {
+		      $this->product['categories'][$counter]['checked'] = false;
+		}
+		$counter++;
+	  }
+	  $this->product['manufactorers'] = $this->handler['emNew']
+			->getRepository('cmsspaBundle:Manufacturer')
+			->findAllNotEmptyManufacturers();
+    }
+    
+    private function setRealPrice($origin) {
+	  if ($this->product['discount'][$origin]['reductionType'] == 'percentage') {
+		  $discount = $this->product['price'][$origin] * $this->product['discount'][$origin]['reduction'];
+		  $priceReal = $this->product['price'][$origin] - $discount;
+		  $this->product['priceReal'][$origin] = number_format((float) $priceReal, 2, '.', '');
+	  } elseif ($this->product['discount'][$origin]['reductionType'] == 'amount') {
+		  $priceReal = $this->product['price'][$origin] - $this->product['discount'][$origin]['reduction'];
+		  $this->product['priceReal'][$origin] = number_format((float) $priceReal, 2, '.', '');
+	  }
+    }
+    
 }
