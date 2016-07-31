@@ -33,7 +33,7 @@ rest_evenById:
 rest_singleUpdate:
     path:     /products/{id}/{attribute}
     defaults: { _controller: cmsspaBundle:Products:singleUpdate, attribute: 0 }
-    methods:  POST
+    methods:  PUT
     requirements:
          id:  \d+
          

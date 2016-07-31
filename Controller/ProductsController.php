@@ -54,6 +54,13 @@ class ProductsController extends BaseController
 			$this->product['attribute']['old'] = $this->handler['emOld']
 			      ->getRepository('cmsspaBundle:ProductAttribute')
 			      ->checkProductAttribute($id);
+			$counter = 0;
+			foreach ($this->product['attribute']['new'] as $single) {
+			      $this->product['attribute']['new'][$counter]["productAttributeBoth"] = $single["productAttribute"].'-'.$this->product['attribute']['old'][$counter]["productAttribute"];
+			      $this->product['attribute']['new'][$counter]["attributeIdBoth"] = 
+			      $single["attributeId"].'-'.$this->product['attribute']['old'][$counter]["attributeId"];
+			      $counter++;
+			}
 			$result = array(
 			      'success' => false, 
 			      'reason' => 'attribute needed', 
@@ -77,10 +84,15 @@ class ProductsController extends BaseController
 	    }
 	    $this->getPrices();
 	    $this->getQuantities();
+	    $this->product['image'] = $this->handler['emOld']
+			->getRepository('cmsspaBundle:Image')
+			->findCoverImage($id);
 	    if (isset($_GET['basic']) && $_GET['basic'] == true) {
 		  $this->product['name'] = $this->handler['emNew']
 			->getRepository('cmsspaBundle:Products')
 			->findNameById($id);
+	          $this->product['linkRewrite'] = $product->getLinkRewrite();
+		  $this->product['success'] = true;
 		  $response = $this->printJson($this->product);
 		  return $response;
 		  //return $this->render('cmsspaBundle:Products:detailsId.html.twig', array(
@@ -113,9 +125,9 @@ class ProductsController extends BaseController
 		->findByNamePart($name);
 
           if (!$this->product) {
-	    throw $this->createNotFoundException(
-		'No product with phrase:  '.$name
-	    );
+	    $result = array('success' => false, 'reason' => 'Brak produktu o nazwie: '.$name);
+	    $response = $this->printJson($result);
+		return $response;
 	  } else {
 		$response = $this->printJson($this->product);
 		return $response;
@@ -145,24 +157,26 @@ class ProductsController extends BaseController
     }
     
     private function getPrices() {
-	  $this->product['price']['new'] = $this->handler['emNew']
+	  $this->product['price']['new'] = number_format((float)$this->handler['emNew']
 		->getRepository('cmsspaBundle:ProductsShop')
 		->find($this->product['id'])
-		->getPrice();
-	  $this->product['price']['old'] = $this->handler['emOld']
+		->getPrice(), 2, '.', '');
+	  $this->product['price']['old'] = number_format((float)$this->handler['emOld']
 	        ->getRepository('cmsspaBundle:ProductsShop')
 		->find($this->product['id'])
-		->getPrice();
+		->getPrice(), 2, '.', '');
 	  $this->product['discount']['new'] = $this->handler['emNew']
 	        ->getRepository('cmsspaBundle:SpecificPrice')
 		->findByIdProduct($this->product['id']); 
 	  if ($this->product['discount']['new'] !== false) {
+		  $this->product['discount']['new']["percentage"] = floatval($this->product['discount']['new']["reduction"]) * 100;
 		  $this->setRealPrice('new');
 	  } 
 	  $this->product['discount']['old'] = $this->handler['emOld']
 	        ->getRepository('cmsspaBundle:SpecificPrice')
 		->findByIdProduct($this->product['id']); 
 	  if ($this->product['discount']['old'] !== false) {
+		  $this->product['discount']['old']['reduction'] = number_format((float) $this->product['discount']['old']['reduction'], 2, '.', '');
 		  $this->setRealPrice('old');
 	  }
     }
@@ -174,6 +188,30 @@ class ProductsController extends BaseController
 	  $this->product['quantity']['old'] = $this->handler['emOld']
 		->getRepository('cmsspaBundle:StockAvailable')
 		->getCurrentQuantity($this->product['id'], $this->product['attribute']['old']);
+    }
+    
+    public function historyProductByIdAction($id) {
+	  $this->getDbHandlers();
+	  $history = $this->handler['emNew']
+			->getRepository('cmsspaBundle:ProductHistory')
+			->findByProductId($id);
+	  $this->product = array();
+	  $counter = 0;
+	  foreach ($history as $single) {
+	  $this->product[$counter]['id'] = $single->getProductId();
+	  if ($single->getAttributeId() != 0) {
+		$this->product[$counter]['attribute'] = $single->getAttributeId();
+	  }
+	  $this->product[$counter]['quantity'] = $single->getQuantity();
+	  $single->getBaseOrigin() == 0 ? $this->product[$counter]['dataBase'] = 'old' : $this->product[$counter]['dataBase'] = 'new';
+	  $dateObj = $single->getDate();
+	  if($dateObj instanceof \DateTime){
+		$this->product[$counter]['date'] = $dateObj->format('Y-m-d H:i:s');
+	  }
+	  $counter++;
+	  }
+	  $response = $this->printJson($this->product);
+	  return $response;
     }
     
     private function setProductDates($product, $additionalDetails) {
@@ -192,14 +230,34 @@ class ProductsController extends BaseController
           $this->product['productCategories'] = $this->handler['emNew']
 			->getRepository('cmsspaBundle:CategoryProduct')
 			->findProductCategories($product->getIdProduct());
+	  $this->product['productCategoriesName'] = array();
+	  $counter = 0;
+          foreach ($this->product['productCategories'] as $single) {
+          $this->product['productCategoriesName'][$counter] = $this->handler['emNew']
+			->getRepository('cmsspaBundle:CategoryLang')
+			->find($single)->getMetaTitle();
+          $counter++;
+          }
 	  $this->product['productTags'] = $this->handler['emNew']
 			->getRepository('cmsspaBundle:ProductTag')
 			->findTagList($product->getIdProduct());
 		  //$this->product['tagString'] = $this->product['productTags']['tagString'];
 	  unset($this->product['productTags']['tagString']);
+	  $this->product['images'] = $this->handler['emOld']
+			->getRepository('cmsspaBundle:Image')
+			->findCoverImage($product->getIdProduct(), true);
 	  $this->product['categories'] = $this->handler['emNew']
 			->getRepository('cmsspaBundle:CategoryLang')
 			->findAllNotEmptyCategories();
+	  $counter = 0;
+	  foreach ($this->product['categories'] as $single) {
+		if (in_array($single['id'], $this->product['productCategories'])) {
+		      $this->product['categories'][$counter]['checked'] = true;
+		} else {
+		      $this->product['categories'][$counter]['checked'] = false;
+		}
+		$counter++;
+	  }
 	  $this->product['manufacturers'] = $this->handler['emNew']
 			->getRepository('cmsspaBundle:Manufacturer')
 			->findAllNotEmptyManufacturers();
@@ -208,54 +266,56 @@ class ProductsController extends BaseController
     private function setRealPrice($origin) {
 	  if ($this->product['discount'][$origin]['reductionType'] == 'percentage') {
 		  $discount = $this->product['price'][$origin] * $this->product['discount'][$origin]['reduction'];
-		  $this->product['priceReal'][$origin] = $this->product['price'][$origin] - $discount;
+		  $priceReal = $this->product['price'][$origin] - $discount;
+		  $this->product['priceReal'][$origin] = number_format((float) $priceReal, 2, '.', '');
 	  } elseif ($this->product['discount'][$origin]['reductionType'] == 'amount') {
-		  $this->product['priceReal'][$origin] = $this->product['price'][$origin] - $this->product['discount'][$origin]['reduction'];
+		  $priceReal = $this->product['price'][$origin] - $this->product['discount'][$origin]['reduction'];
+		  $this->product['priceReal'][$origin] = number_format((float) $priceReal, 2, '.', '');
 	  }
     }
     
-    public function singleUpdateAction($id, $attribute) {
-	  if ($_POST['db'] !== 'both') {
+    public function singleUpdateAction($id, $fAttribute, $sAttribute = null) {
+	  if ($GLOBALS["_PUT"]['db'] !== 'both') {
 		$this->handler = array(
 		      $this->getDoctrine()
-		      ->getManager($_POST['db'])
+		      ->getManager($GLOBALS["_PUT"]['db'])
 		);
-		$arrayAttribute = array($attribute);
 	  } else {
 		$this->getDbHandlers();
-		$explode = explode('-', $attribute);
-		$arrayAttribute = array($explode[0], $explode[1]);
 	  }
+	  $arrayAttribute = array($fAttribute, $sAttribute);
 	  $counter = 0;
 	  foreach ($this->handler as $single) {
-		if (isset($_POST['price'])) {
+		if (isset($GLOBALS["_PUT"]['price'])) {
 		      $product = $single
 			    ->getRepository('cmsspaBundle:Products')
 			    ->find($id);
-		      $product->setPrice(floatval($_POST["price"]));
+		      $product->setPrice(floatval($GLOBALS["_PUT"]["price"]));
 		      $productShop = $single
 			    ->getRepository('cmsspaBundle:ProductsShop')
 			    ->find($id);
-		      $productShop->setPrice(floatval($_POST["price"]));
-		} elseif (isset($_POST['quantity'])) {
-		      if ($_POST['db'] !== 'both') {
-			    $this->secondDatabase = $_POST['db'] == 'linuxPl' ? 0 : 1;
+		      $productShop->setPrice(floatval($GLOBALS["_PUT"]["price"]));
+		} elseif (isset($GLOBALS["_PUT"]['quantity'])) {
+		      if ($GLOBALS["_PUT"]['db'] !== 'both') {
+			    $this->secondDatabase = $GLOBALS["_PUT"]['db'] == 'linuxPl' ? 0 : 1;
 		      } else {
 			    $this->secondDatabase = $counter == 0 ? 1 : 0;
 		      }
 		      $product = $single
 			    ->getRepository('cmsspaBundle:StockAvailable')
-			    ->evenQuantityAndAttribute($id, $arrayAttribute[$counter], $_POST['quantity']);
+			    ->evenQuantityAndAttribute($id, $arrayAttribute[$counter], $GLOBALS["_PUT"]['quantity']);
+		      $this->setProductHistory($id, $arrayAttribute[$counter], $GLOBALS["_PUT"]['quantity']);
 		}
 		$counter++;
 		try {
-		      $single->persist($product);
+		      //$single->persist($product);
 		      if (isset($productShop)) {
 			    $single->persist($productShop);
+			    $single->flush();
 		      }
-		      $single->flush();
 		      $result = array('success' => true);
 		} catch (\Exception $e) {
+		      $result = array('success' => false);
 		      $response = $this->printJson($result);
 		      return $response;
 		}
