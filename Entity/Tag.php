@@ -18,6 +18,11 @@ class Tag
       * @ORM\GeneratedValue(strategy="AUTO")
       */
       protected $id_tag;
+      
+      /**
+      * @ORM\Column(type="integer")
+      */
+      protected $id_lang;
 
       /**
       * @ORM\Column(type="string", length=100)
@@ -57,5 +62,29 @@ class Tag
     public function getName()
     {
         return $this->name;
+    }
+
+    /**
+     * Set idLang
+     *
+     * @param integer $idLang
+     *
+     * @return Tag
+     */
+    public function setIdLang($idLang)
+    {
+        $this->id_lang = $idLang;
+
+        return $this;
+    }
+
+    /**
+     * Get idLang
+     *
+     * @return integer
+     */
+    public function getIdLang()
+    {
+        return $this->id_lang;
     }
 }

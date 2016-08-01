@@ -35,6 +35,17 @@ class Products
       */
     protected $price;
     
+    /**
+      * @ORM\Column(type="integer")
+      */
+    protected $active;
+    
+    /**
+      * @ORM\Column(name="`condition`")
+      * @ORM\Column(type="string", length=100)
+      */
+    protected $condition;
+    
 
     /**
      * Get idProduct
@@ -128,4 +139,52 @@ class Products
              $product = $query->getResult();
              return $product;
      }
+
+    /**
+     * Set active
+     *
+     * @param integer $active
+     *
+     * @return Products
+     */
+    public function setActive($active)
+    {
+        $this->active = $active;
+
+        return $this;
+    }
+
+    /**
+     * Get active
+     *
+     * @return integer
+     */
+    public function getActive()
+    {
+        return $this->active;
+    }
+
+    /**
+     * Set condition
+     *
+     * @param string $condition
+     *
+     * @return Products
+     */
+    public function setCondition($condition)
+    {
+        $this->condition = $condition;
+
+        return $this;
+    }
+
+    /**
+     * Get condition
+     *
+     * @return string
+     */
+    public function getCondition()
+    {
+        return $this->condition;
+    }
 }

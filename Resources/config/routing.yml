@@ -29,13 +29,38 @@ rest_evenById:
     requirements:
          origin:  new|old
          id:  \d+ 
+
+rest_productConditions:
+    path:     /products/conditions
+    defaults: { _controller: cmsspaBundle:Products:productCondition }
+    methods:  GET 
+    
+rest_productsModifiedDelete:
+    path:     /products/modified/{id}
+    defaults: { _controller: cmsspaBundle:Products:productsModifiedDelete }
+    methods:  DELETE
+    requirements:
+         id:  \d+
+         
+rest_productsModified:
+    path:     /products/modified
+    defaults: { _controller: cmsspaBundle:Products:productsModified }
+    methods:  GET
+         
+rest_productsHistoryById:
+    path:     /products/{id}/history
+    defaults: { _controller: cmsspaBundle:Products:historyProductById }
+    methods:  GET
+    requirements:
+         id:  \d+
   
 rest_singleUpdate:
-    path:     /products/{id}/{attribute}
-    defaults: { _controller: cmsspaBundle:Products:singleUpdate, attribute: 0 }
+    path:     /products/{id}/{fAttribute}/{sAttribute}
+    defaults: { _controller: cmsspaBundle:Products:productUpdate, fAttribute: 0, sAttribute: 0 }
     methods:  PUT
     requirements:
          id:  \d+
+         attribute: \d+
          
 rest_productsById:
     path:     /products/{id}/{attribute}

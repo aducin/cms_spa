@@ -7,6 +7,13 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
 class ProductTagRepository extends \Doctrine\ORM\EntityRepository
 {
+     public function deleteProductTag($id)
+     {
+	    return $result = $this->getEntityManager()
+             ->createQuery('DELETE FROM cmsspaBundle:ProductTag p WHERE p.id_product = :id')
+             ->setParameter('id', $id)->getResult();
+     }
+     
      public function findTagList($id)
      {
 	    $tags =  $this->getEntityManager()

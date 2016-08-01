@@ -31,6 +31,7 @@ class ProductsShop
     protected $active;
     
     /**
+      * @ORM\Column(name="`condition`")    
       * @ORM\Column(type="string", length=100)
       */
     protected $condition;

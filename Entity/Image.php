@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 
 /**
-  * @ORM\Entity(repositoryClass="cms\spaBundle\Entity\CategoryProductRepository")
+  * @ORM\Entity(repositoryClass="cms\spaBundle\Entity\ImageRepository")
   * @ORM\Table(name="ps_image")
   */
 class Image

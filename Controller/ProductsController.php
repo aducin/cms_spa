@@ -4,34 +4,18 @@ namespace cms\spaBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Response;
+use cms\spaBundle\Entity\CategoryProduct;
+use cms\spaBundle\Entity\Condition;
+use cms\spaBundle\Entity\Image;
+use cms\spaBundle\Entity\Modyfy;
 use cms\spaBundle\Entity\ProductHistory;
+use cms\spaBundle\Entity\ProductTag;
+use cms\spaBundle\Entity\Tag;
 use Doctrine\ORM\Mapping as ORM;
 
 
 class ProductsController extends BaseController
 {
-    
-    /*
-    public function detailsByIdAction($id) // elder version for short search
-    {
-	  $this->getDbHandlers();
-	  $this->product['id'] = $id;
-          $this->product['name'] = $this->handler['emNew']
-		->getRepository('cmsspaBundle:Products')
-		->findNameById($id);
-          
-          if (!$this->product['name']) {
-	    throw $this->createNotFoundException(
-		'There is no product with ID:  '.$id
-	    );
-	  } else {
-		$this->getPrices();
-		$this->getQuantities();
-		$response = $this->printJson($this->product);
-		return $response;
-          }
-    }
-    */
     
     public function detailsByIdAction($id, $attribute)
     {
@@ -138,6 +122,137 @@ class ProductsController extends BaseController
           }
     }
     
+    private function fullUpdate($dates, $attribute) {
+	  $this->getDbHandlers();
+	  $dates['id'] = intval($dates['id']);
+	  $counter = 0;
+	  foreach ($this->handler as $single) {
+		$product = $single
+			->getRepository('cmsspaBundle:ProductsLang')
+			->find($dates['id']);
+		$product->setName(strip_tags($dates['name']));
+		$product->setDescription(strip_tags($dates['description']));
+		$product->setDescriptionShort(strip_tags($dates['descriptionShort']));
+		$product->setLinkRewrite(strip_tags($dates['linkRewrite']));
+		$product->setMetaDescription(strip_tags($dates['metaDescription']));
+		$product->setMetaTitle(strip_tags($dates['metaTitle']));
+		$single->persist($product);
+		$product = $single
+			->getRepository('cmsspaBundle:StockAvailable')
+			->evenQuantityAndAttribute($dates['id'], $attribute[$counter], $dates['quantity']);
+		$product = $single
+			->getRepository('cmsspaBundle:Products')
+			->find($dates['id']);
+		$product->setIdManufacturer($dates['manufactorer']['id']);
+		$product->setActive($dates['active']['value']);
+		$product->setCondition($dates['condition']['value']);
+		$condition = $this->handler['emNew']
+			->getRepository('cmsspaBundle:Condition')
+			->findByCondition($dates['condition']['value']);
+		$counter == 0 ? $product->
+				setPrice(floatval($dates['priceNew'])) : 
+				$product->setPrice(floatval($dates['priceOld']));
+		$single->persist($product);
+		$product = $single
+			->getRepository('cmsspaBundle:ProductsShop')
+			->find($dates['id']);
+		$counter == 0 ? $product->
+				setPrice(floatval($dates['priceNew'])) : 
+				$product->setPrice(floatval($dates['priceOld']));
+		$product->setActive($dates['active']['value']);
+		$product->setCondition($dates['condition']['value']);
+		if ($dates['modified'] == true) {
+		      $modify = new Modyfy();
+		      $modify->setIdNumber($dates['id']);
+		      $modify->setName(strip_tags($dates['name']));
+		      $date = getdate();
+		      if ($date['mday'] <= 9) {
+			    $date['mday'] = '0'.$date['mday'];
+		      }
+		      if ($date['mon'] <= 9) {
+			    $date['mon'] = '0'.$date['mon'];
+		      }
+		      $curDate = $date['year'].'-'.$date['mon'].'-'.$date['mday'];
+		      $modify->setDate($date['year'].'-'.$date['mon'].'-'.$date['mday']);
+		      $this->handler['emOld']->persist($modify);
+		      $this->handler['emOld']->flush();
+		}
+		$categoryList = array();
+		foreach ($dates['categories'] as $category) {
+		      if ($category['checked'] === "true") {
+			      if ($counter == 1) {
+				    if ($category["metaTitle"] == "Skala H0") {
+					  $category["id"] = 2;
+				    }
+				    if ($category["metaTitle"] == "Główna") {
+					  $category["id"] = 6;
+				    }
+			      }
+			      $categoryList[] = $category["id"];
+		      }
+		}
+		$categoryDelete = $single
+			->getRepository('cmsspaBundle:CategoryProduct')
+			->deleteProductCategories($dates['id']);
+		foreach ($categoryList as $category) {
+		      $row = new CategoryProduct();
+		      $row->setIdCategory(intval($category));
+		      $row->setIdProduct($dates['id']);
+		      $single->persist($row);
+		      $single->flush();
+		}
+		$tags = explode(', ', $dates['tagString']);
+		$recentTag = array();
+		$missingTag = array();
+		foreach ($tags as $tag) {
+		      $recent = $single
+			->getRepository('cmsspaBundle:Tag')
+			->findTagId($tag);
+		      if ($recent != 'missing') {
+			      $recentTag[] = $recent;
+		      } else {
+			      $missingTag[] = $tag;
+		      }
+		}
+		if (!empty($missingTag)) {
+		      foreach ($missingTag as $tag) {
+			    $newTag = new Tag();
+			    $newTag->setName($tag);
+			    $newTag->setIdLang(1);
+			    $single->persist($newTag);
+			    $single->flush();
+			    $recentTag[] = $single
+				->getRepository('cmsspaBundle:Tag')
+				->findTagId($tag);
+		      }
+		}
+		$delete = $single
+			->getRepository('cmsspaBundle:ProductTag')
+			->deleteProductTag($dates['id']);
+		foreach ($recentTag as $tag) {
+			$newTag = new ProductTag();
+			$newTag->setIdProduct($dates['id']);
+			$newTag->setIdTag($tag);
+			$single->persist($newTag);
+		}
+		if ($dates['deletePhoto'] == 'true') {
+		      $single
+		      ->getRepository('cmsspaBundle:Image')
+		      ->deleteAllImages($dates['id']);
+		}
+		$single->persist($product);
+		$single->flush();
+		$counter++;
+          }
+          $result = array ('success' => true, 'data' => 'Data has been sucesfully modified');
+                    $response = new Response();
+	  $response->setContent(json_encode($result));
+	  $response->headers->set('Content-Type', 'application/json');
+          		return $response->getContent(); exit();
+	  $response = $this->printJson($response->getContent());
+	  return $response;
+    }
+    
     public function getCategoriesAction() {
 	  $this->getDbHandlers();
 	  $categories = $this->handler['emNew']
@@ -214,7 +329,60 @@ class ProductsController extends BaseController
 	  return $response;
     }
     
+    public function productConditionAction() {
+	  $conditions = array();
+	  $conditions['productConditions'][0] = array('value' => 'used', 'name' => 'Używany');
+	  $conditions['productConditions'][1] = array('value' => 'new', 'name' => 'Nowy');
+	  $conditions['productConditions'][2] = array('value' => 'refurbished', 'name' => 'Odnowiony');
+	  $conditions['productActivity'][0] = array('value' => 0, 'name' => 'Nieaktywny');
+	  $conditions['productActivity'][1] = array('value' => 1, 'name' => 'Aktywny');
+	  $response = $this->printJson($conditions);
+	  return $response;
+    }
+    
+    public function productsModifiedAction() {
+	  $this->getDbHandlers();
+	  $modified = $this->handler['emOld']
+			->getRepository('cmsspaBundle:Modyfy')
+			->findAll();
+          $productList = array();
+          $counter = 0;
+	  foreach ($modified as $single) {
+		    $productList[$counter]['id'] = $single->getIdNumber();
+		    $productList[$counter]['name'] = $single->getName();
+		    $productList[$counter]['date'] = $single->getDate();
+		    $counter++;
+	  }
+	  $response = $this->printJson($productList);
+	  return $response;
+    }
+    
+    public function productsModifiedDeleteAction($id) {
+	  $this->getDbHandlers();
+	  $modified = $this->handler['emOld']
+			->getRepository('cmsspaBundle:Modyfy')
+			->find($id);
+	  if (!$modified) {
+		$result = array('success' => false, 'reason' => 'no product found with id: '.$id);
+	  } else {
+		$this->handler['emOld']->remove($modified);
+		$this->handler['emOld']->flush();
+		$result = array('success' => true, 'reason' => 'deleted product with id: '.$id);
+	  }
+	  $response = $this->printJson($result);
+	  return $response;
+    }
+    
     public function productUpdateAction($id, $fAttribute, $sAttribute = null) {
+	  if (isset($GLOBALS["_PUT"]['scope']) && $GLOBALS["_PUT"]['scope'] == 'full') {
+		$dates = $GLOBALS["_PUT"];
+		$attribute = array();
+		$attribute[0] = $fAttribute;
+		$attribute[1] = $sAttribute;
+		$result = $this->fullUpdate($dates, $attribute);
+		$response = $this->printJson($result);
+		return $response;
+	  }
 	  if ($GLOBALS["_PUT"]['db'] !== 'both') {
 		$this->handler = array(
 		      $this->getDoctrine()
@@ -248,8 +416,8 @@ class ProductsController extends BaseController
 		}
 		$counter++;
 		try {
-		      //$single->persist($product);
 		      if (isset($productShop)) {
+			    $single->persist($product);
 			    $single->persist($productShop);
 			    $single->flush();
 		      }
@@ -272,14 +440,7 @@ class ProductsController extends BaseController
 	  $this->product['metaTitle'] = $product->getMetaTitle();
 	  $this->product['linkRewrite'] = $product->getLinkRewrite();
 	  $this->product['condition'] = $additionalDetails->getCondition();
-	  $this->product['productConditions'] = array();
-	  $this->product['productConditions'][0] = array('value' => 'used', 'name' => 'Używany');
-	  $this->product['productConditions'][1] = array('value' => 'new', 'name' => 'Nowy');
-	  $this->product['productConditions'][2] = array('value' => 'renewed', 'name' => 'Odnowiony');
 	  $this->product['active'] = $additionalDetails->getActive();
-	  $this->product['productActivity'] = array();
-	  $this->product['productActivity'][0] = array('value' => 0, 'name' => 'Nieaktywny');
-	  $this->product['productActivity'][1] = array('value' => 1, 'name' => 'Aktywny');
 	  $this->product['manufactorer'] = $this->handler['emNew']
 			->getRepository('cmsspaBundle:Products')
 			->find($this->product['id'])
