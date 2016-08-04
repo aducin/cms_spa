@@ -48,6 +48,11 @@ class OrderDetail
     /**
       * @ORM\Column(type="decimal", scale=2)
       */
+    protected $reduction_amount_tax_incl;    
+    
+    /**
+      * @ORM\Column(type="decimal", scale=2)
+      */
     protected $total_price_tax_incl;
 
     /**
@@ -232,5 +237,29 @@ class OrderDetail
         $this->id_order = $idOrder;
 
         return $this;
+    }
+
+    /**
+     * Set reductionAmountTaxIncl
+     *
+     * @param string $reductionAmountTaxIncl
+     *
+     * @return OrderDetail
+     */
+    public function setReductionAmountTaxIncl($reductionAmountTaxIncl)
+    {
+        $this->reduction_amount_tax_incl = $reductionAmountTaxIncl;
+
+        return $this;
+    }
+
+    /**
+     * Get reductionAmountTaxIncl
+     *
+     * @return string
+     */
+    public function getReductionAmountTaxIncl()
+    {
+        return $this->reduction_amount_tax_incl;
     }
 }
