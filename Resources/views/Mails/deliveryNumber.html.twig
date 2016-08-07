@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+ <html>
+      <head>
+         <title>Modele-ad9bis - informacja o przyznanym kuponie</title>
+         <meta charset="UTF-8">
+      </head>
+      <body>
+	    <h2>Witaj {{data.customer.firstname}} {{data.customer.lastname}}!</h2>
+	    <div style="width: 70%;">
+		  <p>Twoje zamówienie o numerze <b>{{ data.reference }}</b> jest już w drodze do Ciebie!</p>
+		  <p>Poniżej znajduje się link, pod którym możesz śledzić status swojej przesyłki:<p>
+		  <p>
+			<a target="_blank" href="http://emonitoring.poczta-polska.pl/?numer={{ data.deliveryNumber }}">Link trackingu Poczty Polskiej</a>
+	          </p>
+	          <br>
+	          <p>Dziękujemy za skorzystanie z naszych usług!<p>
+		  <p>Zapraszamy ponownie w przyszłości.</p>
+		  <br>
+		  <br>
+		  <p>Pozdrawiam serdecznie,</p>
+		  Albert Ducin
+		  <br>
+		  ----------------------<br>
+		  P.H.U. Ad9bis<br>
+		  ul. Świerkowa 22,<br>
+		  20-834 - Lublin<br>
+		  (48) 660413844<br>
+		  ad9bis@gmail.com<br>
+		  <img src="http://modele-ad9bis.pl/img/logo.jpg" />
+		  
+	    </div>
+      </body>
+</html>

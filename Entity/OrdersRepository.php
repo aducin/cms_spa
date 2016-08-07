@@ -11,7 +11,7 @@ class OrdersRepository extends \Doctrine\ORM\EntityRepository
      public function findCustomerId($id) {
 	  return $this->getEntityManager()
 		  ->createQuery('
-		  SELECT o.reference, o.id_customer as customerId, o.total_products as totalProduct, o.total_paid as totalPaid FROM cmsspaBundle:Orders o WHERE o.id_order = :id')
+		  SELECT o.reference, o.id_customer as customerId, o.total_products as totalProduct, o.total_paid as totalPaid, o.payment as payment, o.module as module FROM cmsspaBundle:Orders o WHERE o.id_order = :id')
 		  ->setParameter('id', $id)->getResult();
     }
     

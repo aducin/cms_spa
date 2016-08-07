@@ -49,6 +49,16 @@ class Orders
       * @ORM\Column(type="string", length=100)
       */
     protected $date_add;
+    
+     /**
+      * @ORM\Column(type="string", length=100)
+      */
+    protected $payment;
+
+    /**
+      * @ORM\Column(type="string", length=100)
+      */
+    protected $module;
 
     /**
      * Get idOrder
@@ -203,5 +213,53 @@ class Orders
     public function getTotalPaid()
     {
         return $this->total_paid;
+    }
+
+    /**
+     * Set payment
+     *
+     * @param string $payment
+     *
+     * @return Orders
+     */
+    public function setPayment($payment)
+    {
+        $this->payment = $payment;
+
+        return $this;
+    }
+
+    /**
+     * Get payment
+     *
+     * @return string
+     */
+    public function getPayment()
+    {
+        return $this->payment;
+    }
+
+    /**
+     * Set module
+     *
+     * @param string $module
+     *
+     * @return Orders
+     */
+    public function setModule($module)
+    {
+        $this->module = $module;
+
+        return $this;
+    }
+
+    /**
+     * Get module
+     *
+     * @return string
+     */
+    public function getModule()
+    {
+        return $this->module;
     }
 }

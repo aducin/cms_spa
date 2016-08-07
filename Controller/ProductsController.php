@@ -25,9 +25,12 @@ class ProductsController extends BaseController
 	      ->find($id);
 
         if (!$product) {
-	      throw $this->createNotFoundException(
-		  'There is no product with ID:  '.$id
-	      );
+	        $result = array(
+			      'success' => false, 
+			      'reason' => 'no product', 
+			);
+		$response = $this->printJson($result);
+		return $response;
 	} else {
 	    $this->product['id'] = intval($id);
 	    if ($attribute == 0) {
@@ -137,9 +140,17 @@ class ProductsController extends BaseController
 		$product->setMetaDescription(strip_tags($dates['metaDescription']));
 		$product->setMetaTitle(strip_tags($dates['metaTitle']));
 		$single->persist($product);
+		$quantity = $single
+			    ->getRepository('cmsspaBundle:StockAvailable')
+			    ->getCurrentQuantity($dates['id'], $attribute[$counter]);
 		$product = $single
 			->getRepository('cmsspaBundle:StockAvailable')
 			->evenQuantityAndAttribute($dates['id'], $attribute[$counter], $dates['quantity']);
+		$counter === 0 ? $this->secondDatabase = 0 : $this->secondDatabase = 1;
+		if ($quantity != $dates['quantity']) {
+		      echo 'i am here'; exit();
+		      $this->setProductHistory($dates['id'], $attribute[$counter], $dates['quantity']);
+		}
 		$product = $single
 			->getRepository('cmsspaBundle:Products')
 			->find($dates['id']);
@@ -244,11 +255,11 @@ class ProductsController extends BaseController
 		$single->flush();
 		$counter++;
           }
-          $result = array ('success' => true, 'data' => 'Data has been sucesfully modified');
+          $result = true;
                     $response = new Response();
 	  $response->setContent(json_encode($result));
 	  $response->headers->set('Content-Type', 'application/json');
-          		return $response->getContent(); exit();
+          		return($response->getContent()); exit();
 	  $response = $this->printJson($response->getContent());
 	  return $response;
     }
@@ -310,20 +321,30 @@ class ProductsController extends BaseController
 	  $history = $this->handler['emNew']
 			->getRepository('cmsspaBundle:ProductHistory')
 			->findByProductId($id);
+	  if (empty($history)) {
+		$result = array('success' => false, 'reason' => 'no data');
+		$response = $this->printJson($result);
+		return $response;
+	  }
+	  $history = array_reverse($history);
 	  $this->product = array();
 	  $counter = 0;
 	  foreach ($history as $single) {
-	  $this->product[$counter]['id'] = $single->getProductId();
-	  if ($single->getAttributeId() != 0) {
-		$this->product[$counter]['attribute'] = $single->getAttributeId();
-	  }
-	  $this->product[$counter]['quantity'] = $single->getQuantity();
-	  $single->getBaseOrigin() == 0 ? $this->product[$counter]['dataBase'] = 'old' : $this->product[$counter]['dataBase'] = 'new';
-	  $dateObj = $single->getDate();
-	  if($dateObj instanceof \DateTime){
-		$this->product[$counter]['date'] = $dateObj->format('Y-m-d H:i:s');
-	  }
-	  $counter++;
+		if($counter < 10) {
+		      $this->product[$counter]['lp'] = $counter + 1;
+		      $this->product[$counter]['id'] = $single->getProductId();
+		      $this->product[$counter]['user'] = $single->getUser();
+		      if ($single->getAttributeId() != 0) {
+			    $this->product[$counter]['attribute'] = $single->getAttributeId();
+		      }
+		      $this->product[$counter]['quantity'] = $single->getQuantity();
+		      $single->getBaseOrigin() == 0 ? $this->product[$counter]['dataBase'] = 'stary' : $this->product[$counter]['dataBase'] = 'nowy';
+		      $dateObj = $single->getDate();
+		      if($dateObj instanceof \DateTime){
+			    $this->product[$counter]['date'] = $dateObj->format('Y-m-d H:i:s');
+		      }
+		      $counter++;
+		}
 	  }
 	  $response = $this->printJson($this->product);
 	  return $response;
@@ -409,10 +430,15 @@ class ProductsController extends BaseController
 		      } else {
 			    $this->secondDatabase = $counter == 0 ? 1 : 0;
 		      }
+		      $quantity = $single
+			    ->getRepository('cmsspaBundle:StockAvailable')
+			    ->getCurrentQuantity($id, $arrayAttribute[$counter]);
 		      $product = $single
 			    ->getRepository('cmsspaBundle:StockAvailable')
 			    ->evenQuantityAndAttribute($id, $arrayAttribute[$counter], $GLOBALS["_PUT"]['quantity']);
-		      $this->setProductHistory($id, $arrayAttribute[$counter], $GLOBALS["_PUT"]['quantity']);
+	              if ($quantity != $GLOBALS["_PUT"]['quantity']) {
+			    $this->setProductHistory($id, $arrayAttribute[$counter], $GLOBALS["_PUT"]['quantity']);
+		      }
 		}
 		$counter++;
 		try {

@@ -30,6 +30,26 @@ class BaseController extends Controller
 	  return $response;
     }
     
+    protected function renderEmail($data, $path) {
+	   return $this->render(
+		    $path,
+		    array('data' => $data)
+	   );
+    }
+    
+    protected function sendEmail() {
+	  $headers = 'MIME-Version: 1.0' . "\r\n";
+	  $headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
+	  //$recipient = $this->order['customer']['email'];
+	  $recipient = 'ad9bis@gmail.com';
+	  if (mail($recipient, $this->order['title'], $this->order['message'], $headers)){
+		$result = array('success' => true);
+	  } else {
+		$result = array('success' => false);
+	  }
+	  return $result;
+    }
+    
     protected function setCustomer($id, $origin) {
 	    $customer = $this->handler[$origin]
 		  ->getRepository('cmsspaBundle:Customer')

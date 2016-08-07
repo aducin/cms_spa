@@ -17,6 +17,14 @@ rest_ordersById:
 rest_evenById:
     path:     /orders/{origin}/{id}/even
     defaults: { _controller: cmsspaBundle:Orders:evenQuantityById }
+    methods:  PUT
+    requirements:
+         origin:  new|old
+         id:  \d+ 
+         
+rest_email:
+    path:     /orders/{origin}/{id}/mail
+    defaults: { _controller: cmsspaBundle:Orders:orderEmail }
     methods:  GET
     requirements:
          origin:  new|old
@@ -29,6 +37,16 @@ rest_evenById:
     requirements:
          origin:  new|old
          id:  \d+ 
+         
+rest_postal_get:
+    path:     /postal
+    defaults: { _controller: cmsspaBundle:Postal:funds }
+    methods:  GET
+    
+rest_postal_post:
+    path:     /postal
+    defaults: { _controller: cmsspaBundle:Postal:fundsChange }
+    methods:  POST
 
 rest_productConditions:
     path:     /products/conditions

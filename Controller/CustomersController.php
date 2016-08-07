@@ -30,7 +30,8 @@ class CustomersController extends BaseController
 		      $this->order['data'][$counter]["reference"] = $single["reference"];
 		      $this->order['data'][$counter]["totalProduct"] = $single["totalProduct"];
 		      $this->order['data'][$counter]["totalShipping"] = $single["totalShipping"];
-		      $this->order['data'][$counter]["dateAdd"] = $single["dateAdd"];
+		      $date = explode(' ', $single["dateAdd"]);
+		      $this->order['data'][$counter]["dateAdd"] = $date[0];
 		      $this->order['data'][$counter]["voucherNumber"] = $innerCounter;
 		      $counter++;
 		      if ( $innerCounter == 5 ) {

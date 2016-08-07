@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+ <html>
+     <head>
+         <title>Ponowny mail z potwierdzeniem zamówienia!</title>
+         <meta charset="UTF-8">
+     </head>
+     <body>
+	  <h2>Witaj <b>{{data.customer.firstname}} {{data.customer.lastname}}!</b></h2>
+	  <div style="width: 70%;">
+		<p>
+		      Dziękujemy za zamówienie nr <b>{{data.reference}}</b> złożone w sklepie Modele-Ad9bis!<br>
+		      W związku z faktem, iż otrzymaliśmy z serwera Twojej poczty informację o odrzuceniu wysłanych automatycznie wiadomości, poniżej przesyłamy wszelkie dane niezbędne do realizacji ostatniego zamówienia.
+		</p>      
+		<p>      
+		      Jeśli poprzednie wiadomości zostały skutecznie dostarczone, prosimy o pominięcie niniejszego maila.
+		</p>
+	  </div>
+	  <h3>Poniżej znajdują się szczegóły Twojego zamówienia:</h3>
+	  <br>
+	  <div style="width: 70%;">
+		<table style="padding-top: 1%; padding-bottom: 1%; border: 2px solid; border-radius: 10px; background-color: #DCDCDC;">
+		      <tr>
+			  <th style="width: 3%;"></th>
+			  <th style="width: 6%; text-align: left;">Lp.</th>
+			  <th style="width: 12%; text-align: left;">Numer produktu</th>
+			  <th style="width: 35%; text-align: left;">Nazwa</th>
+			  <th style="width: 9%; text-align: left;">Cena za sztukę</th>
+			  <th style="width: 9%;">Zniżka</th>
+			  <th style="width: 8%; text-align: left;">Ilość</th>
+			  <th style="width: 8%; text-align: left;">Suma</th>
+		      </tr>
+		      {% for result in data.cartDetails %}
+			    <tr>
+				  <td style="width: 3%;"></td>
+				  <td style="width: 6%; text-align: left;">{{ result.counter }}.</td>
+				  <td style="width: 12%; text-align: left;">{{ result.productId }}</td>
+				  <td style="width: 35%; text-align: left;">{{ result.productName }}</td>
+				  <td style="width: 9%; text-align: left;">{{ result.unitPrice }} zł</td>
+				  <td style="width: 9%; text-align: center;">{{ result.reduction }}</td>
+				  <td style="width: 8%; text-align: left;">{{ result.productQuantity }}</td>
+				  <td style="width: 8%; text-align: left;">{{ result.totalPrice }} zł</td>
+			    </tr>
+		      {% endfor %}
+		</table>
+	  </div>
+	  <br>
+	  <br>
+	  <div style="margin-left: 20%;">
+		<table style="padding: 1%; width:40%; border: 2px solid; border-radius: 10px; background-color: #DCDCDC;">
+		      <tr>
+			    <td  style="line-height: 150%;">Suma wszystkich produktów: </td>
+			    <td style="text-align: right"><b>{{ data.totalProduct }} zł</b></td>
+		      </tr>
+		      <tr>
+		            <td  style="line-height: 150%;">Suma produktów z wysyłką:</td>
+			    <td style="text-align: right"><b>{{ data.totalPaid }} zł</b></td>
+		      </tr>
+		</table>
+	  </div>
+	  {% if data.payment == "przelew bankowy"  %}
+				<br>
+		Wybrałeś przelew bankowy - prosimy o wpłatę na konto kwoty widocznej w niniejszym mailu.
+		<br>
+		Poniżej przypominamy dane do wpłaty:
+		<br>
+		<b><h3 class="finish1">Ad9bis PHU Albert Ducin</h3></b>
+		<h4 class="finish1">ul. Świerkowa 22</h4> 
+		<h4 class="finish1">20-834 Lublin,</h4>
+		<h4 class="finish1">BGŻ BNP Paribas</h4>
+		<b><h3 class="finish1">23 1600 1462 0008 7807 5754 2001</h3></b>
+	  {% else %}
+		<br>
+		<p>Wybrałeś płatność przy odbiorze - przesyłka zostanie nadana możliwie szybko na adres przypisany do Twojego konta.</p>
+	  {% endif %}
+	  <br>
+	  <div>
+		Zapraszamy do korzystania z naszego sklepu w przyszłości!<br><br>
+		Pozdrawiam serdecznie,<br>
+		Albert Ducin<br>
+		----------------------<br>
+		P.H.U. Ad9bis<br>
+		ul. Świerkowa 22,<br>
+		20-834 - Lublin<br>
+		tel. (48) 660413844<br>
+		ad9bis@gmail.com<br>
+		<img src="http://modele-ad9bis.pl/img/logo.jpg" />
+	  </div>
+     </body>
+</html>
