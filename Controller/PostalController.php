@@ -4,6 +4,7 @@ namespace cms\spaBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Response;
+use cms\spaBundle\Entity\PostCosts;
 use Doctrine\ORM\Mapping as ORM;
 
 
@@ -15,7 +16,7 @@ class PostalController extends BaseController
 	  try {
 		$postList = $this->handler['emNew']
 		      ->getRepository('cmsspaBundle:PostCosts')
-			      ->getLatestPostCosts();
+		      ->getLatestPostCosts();
 		$counter = 0;
 		$list = array();
 		foreach ($postList as $single) {
@@ -36,10 +37,28 @@ class PostalController extends BaseController
     
     public function fundsChangeAction() {
 	  $this->getDbHandlers();
-	  //$params = json_decode(file_get_contents('php://input'),true);
-	  var_dump($GLOBALS["_POST"]['action']);
-	  var_dump($GLOBALS["_POST"]['amount']);
-	  exit();
+	  $action = $GLOBALS["_POST"]['action'];
+	  $amount = $GLOBALS["_POST"]['amount'];
+	  $current = $this->handler['emNew']
+		      ->getRepository('cmsspaBundle:PostCosts')
+		      ->getLatestCurrent();
+	  if ($action == 'add') {
+		$postal = new PostCosts();
+		$postal->setPlus(floatval($amount));
+		$postal->setCurrent(floatval($current) + floatval($amount));
+	  } elseif ($action = 'subtract') {
+		$postal = new PostCosts();
+		$postal->setSubtract(floatval($amount));
+		$postal->setCurrent(floatval($current) - floatval($amount));
+	  }
+	  try {
+		$this->handler['emNew']->persist($postal);
+		$this->handler['emNew']->flush();
+		$response = $this->printJson(array('success' => true, 'reason' => 'Kwota na przesyłki została zmodyfikowana!'));
+	  } catch (\Exception $e) {
+		$response = $this->printJson(array('success' => false, 'reason' => 'Nie udało się zaktualizować kwoty na przesyłki.'));
+	  }
+	  return $response;
     }
 
 }
